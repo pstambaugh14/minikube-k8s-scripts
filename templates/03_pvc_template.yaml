@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: <APPLICATION>-pv-claim
+  namespace: <NAMESPACE>
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: <SIZE_#_IN_GIGS>Gi
+      #EXAMPLE CONFIG: storage: 9Gi

@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: <APPLICATION>-deployment
+  namespace: <NAMESPACE>
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: <APPLICATION>
+  template:
+    metadata:
+      labels:
+        app: <APPLICATION>
+    spec:
+      volumes:
+      - name: <APPLICATION>-pv-storage
+        persistentVolumeClaim:
+          claimName: <APPLICATION>-pv-claim
+      containers:
+      - name: <CONTAINER_NAME>
+        image: <IMAGE_REPO>/<IMAGE_NAME>:<TAG>(commond tags = 'lts' or 'latest')
+#IF APPLICABLE:
+#        resources:
+#            limits:
+#              cpu: 2000m
+#              memory: 746m
+#            requests:
+#              cpu: 100m
+#              memory: 512m
+        ports:
+        - name: <CONTAINER_PORT_01_NAME>
+          containerPort: <PORT_01>
+        - name: <CONTAINER_PORT_02_NAME>
+          containerPort: <PORT_02>
+        volumeMounts:
+        - name: <APPLICATION>-pv-storage
+          mountPath: "/mnt/path/in/container"
+#IF APPLICABLE: 
+#        env:
+#        - name: JAVA_OPTS
+#          value: "-Xms512m -Xmx2048m"
+
