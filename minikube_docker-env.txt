@@ -1,0 +1,35 @@
+
+
+In the Kubernetes minikube tutorial (https://kubernetes.io/docs/tutorials/hello-minikube/#create-your-node-js-application) there is this command to use Minikube Docker daemon :
+
+$ eval $(minikube docker-env)
+
+What exactly does this command do, that is, what exactly does minikube docker-env mean?
+
+
+
+
+
+The command minikube docker-env returns a set of Bash environment variable exports to configure your local environment to re-use the Docker daemon inside the Minikube instance.
+
+Passing this output through eval causes bash to evaluate these exports and put them into effect.
+
+You can review the specific commands which will be executed in your shell by omitting the evaluation step and running minikube docker-env directly. However, this will not perform the configuration – the output needs to be evaluated for that.
+
+This is a workflow optimization intended to improve your experience with building and running Docker images which you can run inside the minikube environment. It is not mandatory that you re-use minikube's Docker daemon to use minikube effectively, but doing so will significantly improve the speed of your code-build-test cycle.
+
+In a normal workflow, you would have a separate Docker registry on your host machine to that in minikube, which necessitates the following process to build and run a Docker image inside minikube:
+
+    Build the Docker image on the host machine.
+    Re-tag the built image in your local machine's image registry with a remote registry or that of the minikube instance.
+    Push the image to the remote registry or minikube.
+    (If using a remote registry) Configure minikube with the appropriate permissions to pull images from the registry.
+    Set up your deployment in minikube to use the image.
+
+By re-using the Docker registry inside Minikube, this becomes:
+
+    Build the Docker image using Minikube's Docker instance. This pushes the image to Minikube's Docker registry.
+    Set up your deployment in minikube to use the image.
+
+
+

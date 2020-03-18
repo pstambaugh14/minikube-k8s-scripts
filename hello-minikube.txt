@@ -1,0 +1,2 @@
+#!/bin/bash
+kubectl run hello-minikube --image=k8s.gcr.io/echoserver:1.10 --port=8080

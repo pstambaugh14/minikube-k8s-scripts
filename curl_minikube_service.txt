@@ -1,0 +1,1 @@
+curl $(minikube service hello-minikube --url)

@@ -1,0 +1,49 @@
+
+
+This would probably never be the BEST approach to something, but I'm wondering if it's even possible.
+
+Something like:
+
+awk '/function_i_want_to_call/,/^$/{print}' script_containing_function | xargs source
+
+function_i_want_to_call arg1 arg2 arg3
+
+Except actually working.
+
+
+
+
+
+First you need to rigorously determine what command will produce the specific part you want to source. For a trivial example, given the file
+
+var1=value1
+var2=value2
+
+you could set only var1 using head -n1 filename. This could be a pipeline of arbitrary complexity, if you wanted.
+
+Then run:
+
+source <( pipeline_of_arbitrary_complexity some_filename )
+
+Works only in bash. To do it in POSIX, I think you'd need to make a temp file.
+
+
+
+
+
+
+
+In bash/ksh and similar, you can use <() to avoid the subshell that | creates:
+
+insourcable.sh:
+
+echo hallo welt
+echo hello world
+echo ahoj světe
+
+Suppose you only want to in-source line number two:
+
+. <( sed -n '2 p' < insourcable.sh )
+
+(prints "hello world")
+

@@ -1,0 +1,3 @@
+In order to have Minikube properly start or restart custom addons, place the addons you wish to be launched with Minikube in the ~/.minikube/addons directory. Addons in this folder will be moved to the Minikube VM and launched each time Minikube is started or restarted.
+
+

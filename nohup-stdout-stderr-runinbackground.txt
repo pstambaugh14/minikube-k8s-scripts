@@ -1,0 +1,13 @@
+
+
+Use nohup if your background job takes a long time to finish or you just use SecureCRT or something like it login the server.
+
+Redirect the stdout and stderr to /dev/null to ignore the output.
+
+nohup /path/to/your/script.sh > /dev/null 2>&1 &
+
+
+
+
+
+
