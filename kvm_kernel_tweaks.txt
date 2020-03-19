@@ -1,0 +1,29 @@
+Assigning the device
+
+1. Modify the kernel config
+
+    Navigate to the kernel source code directory (usually located in /usr/src/linux) and configure the kernel:
+
+
+In Ubuntu's case: /usr/src/<kernel>
+
+     cd /usr/src/linux
+     make menuconfig
+
+
+     Navigate to "Bus options (PCI etc.)" and enable the following options:
+
+     Support for DMA Remapping Devices
+     Enable DMA Remapping Devices
+     PCI Stub driver
+
+
+
+root@gremio-desktop:/usr/src/linux-headers-5.3.0-42/scripts/kconfig#  dmesg | grep AMD-Vi
+root@gremio-desktop:/usr/src/linux-headers-5.3.0-42/scripts/kconfig# iommu=pt iommu=1  
+root@gremio-desktop:/usr/src/linux-headers-5.3.0-42/scripts/kconfig# modprobe pci_stub
+root@gremio-desktop:/usr/src/linux-headers-5.3.0-42/scripts/kconfig# lspci -n
+
+
+
+

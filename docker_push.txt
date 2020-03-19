@@ -1,0 +1,7 @@
+Note: If your Docker registry username is different from the local username you used to create the image, you will have to tag your image with your registry username. For the example given in the last step, you would type:
+
+docker tag sammy/ubuntu-nodejs docker-registry-username/ubuntu-nodejs
+
+Then you may push your own image using:
+
+docker push docker-registry-username/docker-image-name

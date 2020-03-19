@@ -1,0 +1,7 @@
+#check for virtualization capabilities
+dmesg | grep AMD-Vi
+iommu=pt iommu=1  
+
+modprobe kvm kvm-amd
+modprobe pci_stub
+lspci -n

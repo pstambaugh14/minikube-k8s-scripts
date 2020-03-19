@@ -1,0 +1,3 @@
+#!/bin/bash
+#CHMOD A DIRECTORY TO BE ABLE TO CD WIHOUT BEING '07XX'
+chmod a+x
