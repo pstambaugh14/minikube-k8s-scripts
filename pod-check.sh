@@ -3,7 +3,7 @@
 pod_exists=`kubectl get pods -n development | grep -i mern-auth | awk '{ print $1 }'`
 
 if [ "$pod_exists" != "mern-auth" ]
-then 
+then
   echo "Pod does not Exist, Will Create Pod..."
 else
   echo "Pod Already Exists, Deleting Previous Pod..."
