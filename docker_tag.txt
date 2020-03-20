@@ -1,1 +1,0 @@
-docker tag sammy/ubuntu-nodejs docker-registry-username/ubuntu-nodejs

@@ -1,2 +1,4 @@
 #!/bin/bash
-kubectl expose deployment hello-minikube --type=NodePort
+
+#NOTE: THE --type=<Port> WILL HAVE TO BE CHANGED FOR YOUR ENVIRONMENT
+kubectl expose deployment <DEPLOYMENT> --type=NodePort

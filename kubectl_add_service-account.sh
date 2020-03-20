@@ -1,26 +1,19 @@
 #!/bin/bash
 
-#RUN ALL THREE WITH CORRECT VALUES - this is the JENKINS EXAMPLE
-kubectl -n kube-system create sa jenkins
-kubectl create clusterrolebinding jenkins --clusterrole cluster-admin --serviceaccount=jenkins:jenkins
-kubectl create clusterrolebinding default --clusterrole cluster-admin --serviceaccount=jenkins:default
+#LIST YOUR CURRENT SERVICE ACCOUNTS
+kubectl get serviceaccounts --all-namespaces
+#OR:
+kubectl get serviceaccounts -n <NAMESPACE>
 
-#YOU CAN ALSO TEST WITH:
+#RUN WITH DIFFERENT NAMESPACES IN CASE DESIRED
+kubectl -n kube-system create sa <SERVICE_ACCOUNT>
+kubectl -n default create sa <SERVICE_ACCOUNT>
+kubectl -n <NAMESPACE> create sa <SERVICE_ACCOUNT>
 
-kubectl -n default create sa jenkins
-kubectl get pods -n jenkins
-kubectl get pods -n jenkins jenkins-deployment-84797b8db5-b8pjw --output=jsonpath={.spec.serviceAccount} && echo
+#ADD THE clusterrolebinding AS A cluster-admin BY NAMESPACE/USER
+kubectl create clusterrolebinding <SERVICE_ACCOUNT> --clusterrole cluster-admin --serviceaccount=<NAMESPACE>:<SERVICE_ACCOUNT>
+kubectl create clusterrolebinding <SERVICE_ACCOUNT> --clusterrole cluster-admin --serviceaccount=kube-system:<SERVICE_ACCOUNT>
+kubectl create clusterrolebinding <SERVICE_ACCOUNT> --clusterrole cluster-admin --serviceaccount=default:<SERVICE_ACCOUNT>
 
-$ printenv |grep -i kubernetes_serv
-KUBERNETES_SERVICE_PORT_HTTPS=443
-KUBERNETES_SERVICE_HOST=10.96.0.1
-
-APISERVER=https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT_HTTPS}
-
-TOKEN=$(cat /run/secrets/kubernetes.io/serviceaccount/token)
-
-curl $APISERVER/api  --header "Authorization: Bearer $TOKEN" --cacert /run/secrets/kubernetes.io/serviceaccount/ca.crt
-
-kubectl get serviceaccounts
-
-curl $APISERVER/api/v1/pods  --header "Authorization: Bearer $TOKEN" --cacert /run/secrets/kubernetes.io/serviceaccount/ca.crt
+#PRINT THE SERVICE ACCOUNT AFFILIATED WITH THE POD
+kubectl get pods -n <NAMESPACE> <pod_name> --output=jsonpath={.spec.serviceAccount} && echo

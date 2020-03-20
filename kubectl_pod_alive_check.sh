@@ -1,43 +1,22 @@
 #!/bin/bash
-#MODIFY ACCORDINGLY TO NEEDS OF DEPLOYMENT OR POD SETUP
 
-#DEPLOYMENT SETUP
+#THIS SCRIPT IS USED TO CHECK IF YOUR POD IS CURRENTLY RUNNING
+#MODIFY ACCORDINGLY TO NEEDS OF DEPLOYMENT OR POD SETUP
+#FIRST CHECK IF POD EXISTS AND IS RUNNING
+
+#GRABS THE 'TRUE' NAME OF THE POD IN THE CLUSTER
 pod_exists=`kubectl get pods -n <NAMESPACE> | grep -i <POD_NAME> | awk '{ print $1 }'`
-#if [ "$pod_exists" != "jenkins" ]
-#if [[ ! $pod_exists =~ ^(jenkins*)$ ]]; then
-#if [[ ! $pod_exists =~ /jenkins.*/g ]]; then
-#if [[ $pod_exists =~ '^jenkins*' ]]; then
-#  echo "Pod does not Exist, Will Create Pod..."
-#else
-#  echo "Pod Already Exists, Deleting Previous Pod..."
-#  kubectl delete pod $pod_exists -n jenkins
-#fi
+#RUNS AN 'IF' STATEMENT TO VALIDATE WHETHER A POD UNDER THAT NAME EXISTS
 if [[ $pod_exists =~ '^<POD_NAME>*' ]]; then
+#WILL THEN SPIN UP THE POD USING A LOCAL YAML FILE IF IT DOESN'T EXIST ALREADY EXIST
   echo "Pod does not Exist, Will Create Pod..."
-  kubectl create -f <APPLICATION>-deployment.yaml
-  #OR
-  #./04_deployment_install.sh
+  kubectl create -f <POD_NAME>OR<DEPLOYMENT>.yaml -n <NAMESPACE>
+#OTHERWISE THE SCRIPT WILL DELETE PREVIOUS PODS OR DEPLOYMENTS AND THEN SPIN A NEW ONE UP FROM A LOCAL FILE
 else
   echo "Pod Already Exists, Deleting Previous Pod & Creating a New One..."
-  kubectl delete deployment <APPLICATION>-deployment -n <NAMESPACE>
+  kubectl delete deployment <POD_NAME>OR<DEPLOYMENT> -n <NAMESPACE>
   kubectl delete pod $pod_exists -n <NAMESPACE> && kubectl create -f <APPLICATION>-deployment.yaml
 fi
 
-#IF DESIRED FOR ENVIVONMENT VARIABLES, IF, SAY, PIPELINING, UNCOMMENT:
-#export pod_exists=$pod_exists
-
-#POD SETUP
-#pod_exists=`kubectl get pods -n <NAMESPACE> | grep -i <POD_NAME> | awk '{ print $1 }'`
-#if [[ $pod_exists =~ '^<POD_NAME>*' ]]; then
-#  echo "Pod does not Exist, Will Create Pod..."
-#  kubectl create -f <APPLICATION_POD_DEPLOY>.yaml
-  #OR
-  #./pods_install.sh
-#else
-#  echo "Pod Already Exists, Deleting Previous Pod & Creating a New One..."
-#  kubectl delete pod $pod_exists -n <NAMESPACE> && kubectl create -f <APPLICATION_POD_DEPLOY>.yaml
-#fi
-
-#IF DESIRED FOR ENVIVONMENT VARIABLES, IF, SAY, PIPELINING, UNCOMMENT:
-#export pod_exists=$pod_exists
-
+#IF DESIRED FOR SHELL OR PIPELINE ENVIVONMENT VARIABLES - LEAVE UNCOMMENTED BELOW FOR THE POD NAME:
+export pod_exists=$pod_exists
