@@ -1,0 +1,10 @@
+configMapGenerator:
+- name: example-config
+  namespace: example_ns
+  files:
+  - fluent.conf
+  - kubernetes.conf
+  - prometheus.conf
+  - systemd.conf  
+resources:
+- configset_deploy.yaml
