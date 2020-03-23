@@ -1,11 +1,12 @@
 #!/bin/bash
 
-pod_exists=`kubectl get pods -n development | grep -i mern-auth | awk '{ print $1 }'`
+pod_exists=`kubectl get pods -n <NAMESPACE> | grep -i <PODNAME> | awk '{ print $1 }'`
 
-if [ "$pod_exists" != "mern-auth" ]
+if [ "$pod_exists" != "<PODNAME>" ]
 then
   echo "Pod does not Exist, Will Create Pod..."
+  kubectl create -f <POD.YAML>
 else
   echo "Pod Already Exists, Deleting Previous Pod..."
-  kubectl delete pod mern-auth -n development
+  kubectl delete pod <PODNAME> -n <NAMESPACE>
 fi
