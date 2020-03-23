@@ -57,7 +57,7 @@ pod () {
       kubectl delete pod $2 -n $1 && kubectl create -f $4 -n $1
     elif [[ $exists != $2 ]]; then
       echo "Deployment does not Exist, Will Create Deployment..."
-      kubectl create -f deployment $4 -n $1
+      kubectl create -f pod $4 -n $1
     else
       echo "Improper Value - Restarting the Script... " $(deploy)
    fi
