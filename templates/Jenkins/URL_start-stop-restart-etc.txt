@@ -1,0 +1,6 @@
+http://<jenkins.server>/restart
+http://<jenkins.server>/safeRestart
+http://<jenkins.server>/exit
+http://<jenkins.server>/safeExit
+http://<jenkins.server>/quietDown
+http://<jenkins.server>/cancelQuietDown

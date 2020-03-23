@@ -1,0 +1,12 @@
+redis-cli 
+127.0.0.1:6379> SET data_type list
+OK
+127.0.0.1:6379> set host 192.168.0.70
+OK
+127.0.0.1:6379> set key logstash
+OK
+127.0.0.1:6379> set port 6379
+OK
+127.0.0.1:6379> set type redis
+OK
+

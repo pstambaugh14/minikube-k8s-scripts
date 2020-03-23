@@ -1,0 +1,13 @@
+environment {
+  NodeIP = "192.168.39.153"
+  NodePort = "8443"
+  NodeName = "minikube"
+  APIServerName = "minikubeCA"
+  KVMNetwork = "default"
+  KVMQemuURI = "qemu:///system"
+  IPAddress = "192.168.39.153"
+  MachineName = "minikube"
+  SSHUser = "docker"
+  SSHPort = "22"
+  ConnectionURI = "qemu:///system"
+}

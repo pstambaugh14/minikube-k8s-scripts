@@ -1,0 +1,67 @@
+How to add an 'export' unix command in a Jenkins pipeline? I have a Jenkins 'stage' and 'steps' within it. What is the syntax for an export command. I need to set the environment variable 'PATH' using the export command. 
+
+
+
+
+
+
+
+
+You can update the $PATH like this:
+
+pipeline {
+  agent { label 'docker' }
+  stages {
+    stage ('build') {
+      steps {
+
+        // JENKINSHOME is just a name to help readability
+        withEnv(['PATH+JENKINSHOME=/home/jenkins/bin']) {
+          echo "PATH is: $PATH"
+        }
+      }
+    }
+  }
+}
+
+When I run this the result is:
+
+[Pipeline] echo
+PATH is: /home/jenkins/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
+
+What the heck is this PATH+JENKINSHOME syntax? Quoting from a blog at designhammer.com:
+
+This:
+
+/my/additional/path:$PATH
+
+is expressed as:
+
+PATH+ANYSTRING=/my/additional/path.
+
+ANYSTRING is just a name to help readability. If it doesn't help readability, in your view, you can omit it. So this is equivalent:
+
+PATH+=/my/additional/path
+
+The above (withEnv) allows you to update the $PATH for a specific part of your pipeline. To update the $PATH for the entire pipeline, you can't use the PATH+ANYSTRING syntax, but this works:
+
+pipeline {
+  agent { label 'docker' }
+  environment {
+    PATH = "/hot/new/bin:$PATH"
+  }
+  stages {
+    stage ('build') {
+      steps {
+        echo "PATH is: $PATH"
+      }
+    }
+  }
+}
+
+Produces output:
+
+[Pipeline] echo
+PATH is: /hot/new/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
+
+

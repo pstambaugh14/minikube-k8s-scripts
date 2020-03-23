@@ -1,0 +1,3 @@
+5.56G/7.77G used while having jenkins run in the background @ 512mb heap with full pod deployment for minkube / kubernetes (k8s) cluster
+
+

@@ -1,0 +1,35 @@
+https://stackoverflow.com/questions/36547680/how-to-do-i-get-the-output-of-a-shell-command-executed-using-into-a-variable-fro
+
+I have something like this on a Jenkinsfile (Groovy) and I want to record the stdout and the exit code in a variable in order to use the information later.
+
+sh "ls -l"
+
+How can I do this, especially as it seems that you cannot really run any kind of groovy code inside the Jenkinsfile?
+
+
+
+
+The latest version of the pipeline sh step allows you to do the following;
+
+// Git committer email
+GIT_COMMIT_EMAIL = sh (
+    script: 'git --no-pager show -s --format=\'%ae\'',
+    returnStdout: true
+).trim()
+echo "Git committer email: ${GIT_COMMIT_EMAIL}"
+
+Another feature is the returnStatus option.
+
+// Test commit message for flags
+BUILD_FULL = sh (
+    script: "git log -1 --pretty=%B | grep '\\[jenkins-full]'",
+    returnStatus: true
+) == 0
+echo "Build full flag: ${BUILD_FULL}"
+
+These options where added based on this  (https://issues.jenkins-ci.org/browse/JENKINS-26133) issue.
+
+See official documentation for the sh command. (https://jenkins.io/doc/pipeline/steps/workflow-durable-task-step/#sh-shell-script)
+
+
+

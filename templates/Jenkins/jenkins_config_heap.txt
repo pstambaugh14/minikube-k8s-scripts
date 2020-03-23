@@ -1,0 +1,16 @@
+/etc/sysconfig/jenkins:
+
+ARG = added heap sizes
+
+Test 01 - Brought down values from -Xmx2048m to: -Xms512m -Xmx1024m.
+Results 01 - Overall memory utilization went from 2.74G/7.77G to 2.37G/7.77G overall.
+Note: No noticable performance issues thus far with Jenkins http console.
+
+Test 02 - Brought down values from -Xms512m -Xmx1024m to -Xms512m -Xmx512m. 
+Results 02 - Overall memory utilization went from 2.37G/7.77G to 1.97G/7.77G overall.
+Note: Seems to work fine thus far.  More testing needed.
+
+
+
+
+  

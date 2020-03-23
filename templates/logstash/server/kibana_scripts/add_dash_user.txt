@@ -1,0 +1,8 @@
+#!/bin/bash
+#read -p "Type the name of the user to add, then press enter " username
+#htpasswd -c /etc/nginx/conf.d/kibana.myhost.org.htpasswd $username
+#sudo htpasswd -c /etc/nginx/conf.d/kibana.myhost.org.htpasswd user
+
+#Add a user to the htpasswd file:
+#read -p "Type tthe name of the user to add, then press Enter: " username
+#echo '"\$username:`openssl passwd -apr1`\" | sudo tee -a /etc/nginx/htpasswd.users'

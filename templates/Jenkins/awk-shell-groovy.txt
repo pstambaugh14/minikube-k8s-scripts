@@ -1,0 +1,20 @@
+
+awk in shell in groovy
+Submitted by isntall on Sat, 09/09/2017 - 21:36
+
+In some cases I like to use the awk interpreter for quick task. There are probably a more DSL/Groovy way to do these actions, but awk is so neat and clean.
+
+Example 1
+
+node{
+  stage('EX1'){
+    sh """#!/bin/bash
+      echo "red green blue purple" | awk '{print \$3}'
+    """
+  }
+}
+
+output
+
+[in_jenkins-dsl-test_hw_test-L6OPGZSILNYU4LFJKDMY4AGUBMSB2FT3Z3UAW66ODUIPZN4WUNBA] Running shell script
+blue

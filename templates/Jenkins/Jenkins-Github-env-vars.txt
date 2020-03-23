@@ -1,0 +1,550 @@
+Overview
+
+Global variables are available in Pipeline directly, not as steps. They expose methods and variables to be accessed within your Pipeline script.
+Global Variable Reference
+Variables
+
+docker
+
+    The docker variable offers convenient access to Docker-related functions from a Pipeline script.
+
+    Methods needing a Jenkins agent will implicitly run a node {…} block if you have not wrapped them in one. It is a good idea to enclose a block of steps which should all run on the same node in such a block yourself. (If using a Swarm server, or any other specific Docker server, this probably does not matter, but if you are using the default server on localhost it likely will.)
+
+    Some methods return instances of auxiliary classes which serve as holders for an ID and which have their own methods and properties. Methods taking a body return any value returned by the body itself. Some method parameters are optional and are enclosed with []. Reference:
+
+    withRegistry(url[, credentialsId]) {…}
+
+        Specifies a registry URL such as https://docker.mycorp.com/, plus an optional credentials ID to connect to it. 
+    withServer(uri[, credentialsId]) {…}
+
+        Specifies a server URI such as tcp://swarm.mycorp.com:2376, plus an optional credentials ID to connect to it. 
+    withTool(toolName) {…}
+
+        Specifies the name of a Docker installation to use, if any are defined in Jenkins global configuration. If unspecified, docker is assumed to be in the $PATH of the Jenkins agent. 
+    image(id)
+
+        Creates an Image object with a specified name or ID. See below. 
+    build(image[, args])
+
+        Runs docker build to create and tag the specified image from a Dockerfile in the current directory. Additional args may be added, such as '-f Dockerfile.other --pull --build-arg http_proxy=http://192.168.1.1:3128 .'. Like docker build, args must end with the build context. Returns the resulting Image object. Records a FROM fingerprint in the build. 
+    Image.id
+
+        The image name with optional tag (mycorp/myapp, mycorp/myapp:latest) or ID (hexadecimal hash). 
+    Image.run([args, command])
+
+        Uses docker run to run the image, and returns a Container which you could stop later. Additional args may be added, such as '-p 8080:8080 --memory-swap=-1'. Optional command is equivalent to Docker command specified after the image. Records a run fingerprint in the build. 
+    Image.withRun[(args[, command])] {…}
+
+        Like run but stops the container as soon as its body exits, so you do not need a try-finally block. 
+    Image.inside[(args)] {…}
+
+        Like withRun this starts a container for the duration of the body, but all external commands (sh) launched by the body run inside the container rather than on the host. These commands run in the same working directory (normally a Jenkins agent workspace), which means that the Docker server must be on localhost. 
+    Image.tag([tagname])
+
+        Runs docker tag to record a tag of this image (defaulting to the tag it already has). Will rewrite an existing tag if one exists. 
+    Image.push([tagname])
+
+        Pushes an image to the registry after tagging it as with the tag method. For example, you can use image.push 'latest' to publish it as the latest version in its repository. 
+    Image.pull()
+
+        Runs docker pull. Not necessary before run, withRun, or inside. However, if the image is cached locally, then that image will be used, even if there is a newer version available upstream. This can lead to strange behaviour if agents have different versions of the image and the image is given a floating tag like latest which does not permanently refer to a specific revision. 
+    Image.imageName()
+
+        The id prefixed as needed with registry information, such as docker.mycorp.com/mycorp/myapp. May be used if running your own Docker commands using sh. 
+    Container.id
+
+        Hexadecimal ID of a running container. 
+    Container.stop
+
+        Runs docker stop and docker rm to shut down a container and remove its storage. 
+    Container.port(port)
+
+        Runs docker port on the container to reveal how the port port is mapped on the host. 
+
+pipeline
+
+    The pipeline step allows you to define your Pipelines in a more structured way. See the wiki for more information. 
+env
+
+    Environment variables are accessible from Groovy code as env.VARNAME or simply as VARNAME. You can write to such properties as well (only using the env. prefix):
+
+    env.MYTOOL_VERSION = '1.33'
+    node {
+      sh '/usr/local/mytool-$MYTOOL_VERSION/bin/start'
+    }
+
+    These definitions will also be available via the REST API during the build or after its completion, and from upstream Pipeline builds using the build step.
+
+    However any variables set this way are global to the Pipeline build. For variables with node-specific content (such as file paths), you should instead use the withEnv step, to bind the variable only within a node block.
+
+    A set of environment variables are made available to all Jenkins projects, including Pipelines. The following is a general list of variable names that are available.
+
+    BRANCH_NAME
+        For a multibranch project, this will be set to the name of the branch being built, for example in case you wish to deploy to production from master but not from feature branches; if corresponding to some kind of change request, the name is generally arbitrary (refer to CHANGE_ID and CHANGE_TARGET).
+    CHANGE_ID
+        For a multibranch project corresponding to some kind of change request, this will be set to the change ID, such as a pull request number, if supported; else unset.
+    CHANGE_URL
+        For a multibranch project corresponding to some kind of change request, this will be set to the change URL, if supported; else unset.
+    CHANGE_TITLE
+        For a multibranch project corresponding to some kind of change request, this will be set to the title of the change, if supported; else unset.
+    CHANGE_AUTHOR
+        For a multibranch project corresponding to some kind of change request, this will be set to the username of the author of the proposed change, if supported; else unset.
+    CHANGE_AUTHOR_DISPLAY_NAME
+        For a multibranch project corresponding to some kind of change request, this will be set to the human name of the author, if supported; else unset.
+    CHANGE_AUTHOR_EMAIL
+        For a multibranch project corresponding to some kind of change request, this will be set to the email address of the author, if supported; else unset.
+    CHANGE_TARGET
+        For a multibranch project corresponding to some kind of change request, this will be set to the target or base branch to which the change could be merged, if supported; else unset.
+    CHANGE_BRANCH
+        For a multibranch project corresponding to some kind of change request, this will be set to the name of the actual head on the source control system which may or may not be different from BRANCH_NAME. For example in GitHub or Bitbucket this would have the name of the origin branch whereas BRANCH_NAME would be something like PR-24.
+    CHANGE_FORK
+        For a multibranch project corresponding to some kind of change request, this will be set to the name of the forked repo if the change originates from one; else unset.
+    BUILD_NUMBER
+        The current build number, such as "153"
+    BUILD_ID
+        The current build ID, identical to BUILD_NUMBER for builds created in 1.597+, but a YYYY-MM-DD_hh-mm-ss timestamp for older builds
+    BUILD_DISPLAY_NAME
+        The display name of the current build, which is something like "#153" by default.
+    JOB_NAME
+        Name of the project of this build, such as "foo" or "foo/bar".
+    JOB_BASE_NAME
+        Short Name of the project of this build stripping off folder paths, such as "foo" for "bar/foo".
+    BUILD_TAG
+        String of "jenkins-${JOB_NAME}-${BUILD_NUMBER}". All forward slashes ("/") in the JOB_NAME are replaced with dashes ("-"). Convenient to put into a resource file, a jar file, etc for easier identification.
+    EXECUTOR_NUMBER
+        The unique number that identifies the current executor (among executors of the same machine) that’s carrying out this build. This is the number you see in the "build executor status", except that the number starts from 0, not 1.
+    NODE_NAME
+        Name of the agent if the build is on an agent, or "master" if run on master
+    NODE_LABELS
+        Whitespace-separated list of labels that the node is assigned.
+    WORKSPACE
+        The absolute path of the directory assigned to the build as a workspace.
+    JENKINS_HOME
+        The absolute path of the directory assigned on the master node for Jenkins to store data.
+    JENKINS_URL
+        Full URL of Jenkins, like http://server:port/jenkins/ (note: only available if Jenkins URL set in system configuration)
+    BUILD_URL
+        Full URL of this build, like http://server:port/jenkins/job/foo/15/ (Jenkins URL must be set)
+    JOB_URL
+        Full URL of this job, like http://server:port/jenkins/job/foo/ (Jenkins URL must be set)
+
+    SCM-specific variables such as GIT_COMMIT are not automatically defined as environment variables; rather you can use the return value of the checkout step.
+
+    As an example of loading variable values from Groovy:
+
+    mail to: 'devops@acme.com',
+        subject: "Job '${JOB_NAME}' (${BUILD_NUMBER}) is waiting for input",
+        body: "Please go to ${BUILD_URL} and verify the build"
+
+params
+
+    Exposes all parameters defined in the build as a read-only map with variously typed values. Example:
+
+    if (params.BOOLEAN_PARAM_NAME) {doSomething()}
+
+    or to supply a nontrivial default value:
+
+    if (params.getOrDefault('BOOLEAN_PARAM_NAME', true)) {doSomething()}
+
+    Note for multibranch (Jenkinsfile) usage: the properties step allows you to define job properties, but these take effect when the step is run, whereas build parameter definitions are generally consulted before the build begins. As a convenience, any parameters currently defined in the job which have default values will also be listed in this map. That allows you to write, for example:
+
+    properties([parameters([string(name: 'BRANCH', defaultValue: 'master')])])
+    git url: '…', branch: params.BRANCH
+
+    and be assured that the master branch will be checked out even in the initial build of a branch project, or if the previous build did not specify parameters or used a different parameter name. 
+currentBuild
+    The currentBuild variable, which is of type RunWrapper, may be used to refer to the currently running build. It has the following readable properties:
+
+    getBuildCauses
+        Returns a JSON array of build causes for the current build
+    EXPERIMENTAL - MAY CHANGE getBuildCauses(String causeClass)
+        Takes a string representing the fully qualified Cause class and returns a JSON array of build causes filtered by that type for the current build, or an empty JSON array if no causes of the specified type apply to the current build
+    number
+        build number (integer)
+    result
+        typically SUCCESS, UNSTABLE, or FAILURE (may be null for an ongoing build)
+    currentResult
+        typically SUCCESS, UNSTABLE, or FAILURE. Will never be null.
+    resultIsBetterOrEqualTo(String)
+        Compares the current build result to the provided result string (SUCCESS, UNSTABLE, or FAILURE) and returns true if the current build result is better than or equal to the provided result.
+    resultIsWorseOrEqualTo(String)
+        Compares the current build result to the provided result string (SUCCESS, UNSTABLE, or FAILURE) and returns true if the current build result is worse than or equal to the provided result.
+    displayName
+        normally #123 but sometimes set to, e.g., an SCM commit identifier.
+    fullDisplayName
+        normally folder1 » folder2 » foo #123.
+    projectName
+        Name of the project of this build, such as foo.
+    fullProjectName
+        Full name of the project of this build, including folders such as folder1/folder2/foo.
+    description
+        additional information about the build
+    id
+        normally number as a string
+    timeInMillis
+        time since the epoch when the build was scheduled
+    startTimeInMillis
+        time since the epoch when the build started running
+    duration
+        duration of the build in milliseconds
+    durationString
+        a human-readable representation of the build duration
+    previousBuild
+        previous build of the project, or null
+    previousBuildInProgress
+        previous build of the project that is currently building, or null
+    previousBuiltBuild
+        previous build of the project that has been built (may be currently building), or null
+    previousCompletedBuild
+        previous build of the project that has last finished building, or null
+    previousFailedBuild
+        previous build of the project that has last failed to build, or null
+    previousNotFailedBuild
+        previous build of the project that did not fail to build (eg. result is successful or unstable), or null
+    previousSuccessfulBuild
+        previous build of the project that has successfully built, or null
+    nextBuild
+        next build of the project, or null
+    absoluteUrl
+        URL of build index page
+    buildVariables
+        for a non-Pipeline downstream build, offers access to a map of defined build variables; for a Pipeline downstream build, any variables set globally on env at the time the build ends. Child Pipeline jobs can use this to report additional information to the parent job by setting variables in env. Note that build parameters are not shown in buildVariables.
+    changeSets
+        a list of changesets coming from distinct SCM checkouts; each has a kind and is a list of commits; each commit has a commitId, timestamp, msg, author, and affectedFiles each of which has an editType and path; the value will not generally be Serializable so you may only access it inside a method marked @NonCPS
+    upstreamBuilds
+        a list of upstream builds. These are the builds of the upstream projects whose artifacts feed into this build. 
+    rawBuild
+        a hudson.model.Run with further APIs, only for trusted libraries or administrator-approved scripts outside the sandbox; the value will not be Serializable so you may only access it inside a method marked @NonCPS
+    keepLog
+        true if the log file for this build should be kept and not deleted. 
+
+    Additionally, for this build only (but not for other builds), the following properties are writable:
+
+        result
+        displayName
+        description
+        keepLog
+
+scm
+    Represents the SCM configuration in a multibranch project build. Use checkout scm to check out sources matching Jenkinsfile.
+    You may also use this in a standalone project configured with Pipeline from SCM, though in that case the checkout will just be of the latest revision in the branch, possibly newer than the revision from which the Pipeline was loaded. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Token Macro Plugin Tokens
+
+
+${FAILED_TESTS}
+    Displays failing unit test information, if any tests failed.
+
+    showStack
+        Shows stack trace in failing test output. Defaults to true.
+    showMessage
+        Shows error message in failing test output. Defaults to true.
+    maxTests
+        Display at most this many tests. No limit is set by default.
+    onlyRegressions
+        Display only the failing tests that are different from previous builds. Defaults to false.
+
+
+${TEST_COUNTS,var="TYPE"}
+    Displays the number of tests based on the type (var) passed in (total, pass, fail, skip). Defaults to total.
+
+${GIT_BRANCH}
+    Expands to the name of the branch that was built. 
+Parameters
+
+all
+    If specified, all the branches that point to the given commit is listed. By default, the token expands to just one of them. 
+fullName
+    If specified, this token expands to the full branch name, such as 'origin/master'. Otherwise, it only expands to the short name, such as 'master'. 
+
+
+${GIT_REVISION}
+    Expands to the Git SHA1 commit ID that points to the commit that was built. 
+Parameters
+
+length=N (optional, default to 40)
+    Specify the commit ID length. Full SHA1 commit ID is 40 character long, but it is common to cut it off at 8 or 12 as that often provide enough uniqueness and is a lot more legible. 
+
+
+
+
+${SCRIPTLER, scriptId="SCRIPT_ID"}
+    Expands to the return value of the scripler script. The script must have the "Permission" box checked. If the script attempts to use the build parameter, it must have the "Restriction" box checked, for the execution to be restricted to master. 
+${ADMIN_EMAIL}
+    Displays the email address for the Jenkins administrator
+${BUILD_CAUSE} ${CAUSE}
+    Displays the cause of the build.
+${BUILD_LOG_EXCERPT}
+    Displays an excerpt from the build log.
+
+    start
+        Regular expression to match the excerpt starting line (matching line is excluded).
+    end
+        Regular expression to match the excerpt ending line (matching line is excluded).
+
+    See java.util.regex.Pattern
+${BUILD_LOG}
+    Displays the end of the build log.
+
+    maxLines
+        Display at most this many lines of the log. Defaults to 250.
+    escapeHtml
+        If true, HTML is escape. Defaults to false.
+
+
+${BUILD_LOG_MULTILINE_REGEX}
+    Displays build log segments that match the regular expression.
+
+    regex
+    java.util.regex.Pattern
+        Segments of the build log that match this regular expression are included. See also null. No default. Required parameter
+    maxMatches
+        The maximum number of matches to include. If 0, all matches will be included. Defaults to 0.
+    showTruncatedLines
+        If true, include [...truncated ### lines...] lines. Defaults to true.
+    substText
+        If non-null, insert this text into the email rather than the entire segment. Defaults to null.
+    escapeHtml
+        If true, escape HTML. Defaults to false.
+    matchedSegmentHtmlStyle
+        If non-null, output HTML. Matched lines will become <b style="your-style-value">html escaped matched lines</b>. Defaults to null.
+
+
+${BUILD_LOG_REGEX}
+    Displays lines from the build log that match the regular expression.
+
+    regex
+        Lines that match this regular expression are included. See also java.util.regex.Pattern.Defaults to "(?i)\\b(error|exception|fatal|fail(ed|ure)|un(defined|resolved))\\b"
+    linesBefore
+        The number of lines to include before the matching line. Lines that overlap with another match or linesAfter are only inlcuded once. Defaults to 0.
+    linesAfter
+        The number of lines to include after the matching line. Lines that overlap with another match or linesBefore are only included once. Defaults to 0.
+    maxMatches
+        The maximum number of matches to include. If 0, all matches will be included. Defaults to 0.
+    showTruncatedLines
+        If true, include [...truncated ### lines...] lines. Defaults to true.
+    substText
+        If non-null, insert this text into the email rather than the entire line. Defaults to null.
+    escapeHtml
+        If true, escape HTML. Defauts to false.
+    matchedLineHtmlStyle
+        If non-null, output HTML. Matched lines will become <b style="your-style-value"> html escaped matched line</b>. Defaults to null.
+    addNewline
+        If true, adds a newline after subsText. Defaults to true.
+    defaultValue
+        This value will be used if nothing is replaced.
+
+
+${BUILD_NUMBER}
+    Expands to the current build number, a sequential auto-incrementing unique number that identifies the build, such as "125" 
+${BUILD_STATUS}
+    Displays the status of the current build. (failing, success, etc...)
+${BUILD_URL}
+    Displays the URL for the current build
+${CHANGES_SINCE_LAST_BUILD} ${CHANGES}
+    Displays the changes since the last build.
+
+    showDependencies
+        If true, changes to projects this build depends on are shown. Defaults to false
+    showPaths
+        If true, the paths, modified by a commit are shown. Defaults to false
+    format
+        For each commit listed, a string containing %X, where %x is one of:
+
+        %a
+            author
+        %d
+            date
+        %m
+            message
+        %p
+            path
+        %r
+            revision
+
+        Not all revision systems support %d and %r. If specified showPaths argument is ignored. Defaults to "[%a] %m\\n"
+    pathFormat
+        A string containing %p to indicate how to print paths. Defaults to "\\t%p\\n"
+    regex
+        A regular expression.
+    replace
+        A replacement for all sub-strings of the change message that match the given regular expression.
+    default
+        Message to use when no changes are detected. Defaults to "No changes\n"
+
+
+${CHANGES_SINCE_LAST_SUCCESS}
+    Displays the changes since the last successful build.
+
+    reverse
+        If true, show most recent builds at the top instead of the bottom. Defaults to false.
+    format
+        For each build listed, a string containing %X, where %X is one of
+
+        %c
+            changes
+        %n
+            build number
+
+        Defaults to Changes for Build #%n\n%c\n
+    changesFormat
+        For each change in a build. See ${CHANGES_SINCE_LAST_BUILD} for placeholders.
+
+    Following Parameters are also supported: showPaths, pathFormat, showDependencies, dateFormat, regex, replace, default. See ${CHANGES_SINCE_LAST_BUILD} details.
+${CHANGES_SINCE_LAST_UNSTABLE}
+    Expands to the changes since the last unstable or successful build.
+
+    reverse
+        If true, show most recent builds at the top instead of the bottom. Defaults to false.
+    format
+        For each build listed, a string containing %X, where %X is one of
+
+        %c
+            changes
+        %n
+            build number
+
+        Defaults to Changes for Build #%n\n%c\n
+    changesFormat
+        For each change in a build. See ${CHANGES_SINCE_LAST_BUILD} for placeholders.
+
+    Following Parameters are also supported: showPaths, pathFormat, showDependencies, dateFormat, regex, replace, default. See ${CHANGES_SINCE_LAST_BUILD} details.
+${ENV,var="VARIABLENAME"}
+    Expands to an environment variable (specified here as VARIABLENAME) from the build environment. Note that this does not include any variables set by the build scripts themselves, only those set by Jenkins and other plugins. 
+${JENKINS_URL}
+    Displays the URL to the Jenkins server. (You can change this on the system configuration page.)
+${JOB_DESCRIPTION}
+    Displays the description of the job.
+
+${LOG_REGEX}
+    Uses a regular expression to find a single log entry and generates a new output using the capture groups from it. This is partially based on the description-setter plugin (https://github.com/jenkinsci/description-setter-plugin).
+${PROJECT_NAME}
+    Displays the project's full name. (See AbstractProject.getFullDisplayName)
+${PROJECT_DISPLAY_NAME}
+    Displays the project's display name. (See AbstractProject.getDisplayName)
+${PROJECT_URL}
+    Displays a URL to the project's page.
+${PROPFILE,file="FILENAME",property="PROPERTYNAME"}
+    Expands to the value of a property in a property file. The filename is relative to the build workspace root. 
+${FILE,path="PATH"}
+    Expands to the contents of a file. The file path is relative to the build workspace root. 
+${XML,file="FILE",xpath="XPATH"}
+    Expands to the result(s) of an XPath expression run against the given XML file.
+    If the XPath evaluates to more than one value, then a semicolon-separated string is returned.
+    The file path is relative to the build workspace root. 
+
+In addition to the tokens, you can modify the result of the token expansion using parameter expansions. They follow similar rules as bash Parameter Expansions. The supported expansions are: ${#TOKEN} which resolves to the length of the expanded token value, ${TOKEN:offset:length} which takes a substring of the token result (length is optional and offset and length can both be negative), ${TOKEN#pattern} which matches the pattern against the start of the expanded token and removes it if it, ${TOKEN%pattern} which matches the pattern against the end of the expanded token and removes it it if matches.
+
+
+
+
+
+
+
+
+
+
+
+
+
+The following variables are available to shell scripts
+
+BRANCH_NAME
+    For a multibranch project, this will be set to the name of the branch being built, for example in case you wish to deploy to production from master but not from feature branches; if corresponding to some kind of change request, the name is generally arbitrary (refer to CHANGE_ID and CHANGE_TARGET).
+CHANGE_ID
+    For a multibranch project corresponding to some kind of change request, this will be set to the change ID, such as a pull request number, if supported; else unset.
+CHANGE_URL
+    For a multibranch project corresponding to some kind of change request, this will be set to the change URL, if supported; else unset.
+CHANGE_TITLE
+    For a multibranch project corresponding to some kind of change request, this will be set to the title of the change, if supported; else unset.
+CHANGE_AUTHOR
+    For a multibranch project corresponding to some kind of change request, this will be set to the username of the author of the proposed change, if supported; else unset.
+CHANGE_AUTHOR_DISPLAY_NAME
+    For a multibranch project corresponding to some kind of change request, this will be set to the human name of the author, if supported; else unset.
+CHANGE_AUTHOR_EMAIL
+    For a multibranch project corresponding to some kind of change request, this will be set to the email address of the author, if supported; else unset.
+CHANGE_TARGET
+    For a multibranch project corresponding to some kind of change request, this will be set to the target or base branch to which the change could be merged, if supported; else unset.
+CHANGE_BRANCH
+    For a multibranch project corresponding to some kind of change request, this will be set to the name of the actual head on the source control system which may or may not be different from BRANCH_NAME. For example in GitHub or Bitbucket this would have the name of the origin branch whereas BRANCH_NAME would be something like PR-24.
+CHANGE_FORK
+    For a multibranch project corresponding to some kind of change request, this will be set to the name of the forked repo if the change originates from one; else unset.
+BUILD_NUMBER
+    The current build number, such as "153"
+BUILD_ID
+    The current build ID, identical to BUILD_NUMBER for builds created in 1.597+, but a YYYY-MM-DD_hh-mm-ss timestamp for older builds
+BUILD_DISPLAY_NAME
+    The display name of the current build, which is something like "#153" by default.
+JOB_NAME
+    Name of the project of this build, such as "foo" or "foo/bar".
+JOB_BASE_NAME
+    Short Name of the project of this build stripping off folder paths, such as "foo" for "bar/foo".
+BUILD_TAG
+    String of "jenkins-${JOB_NAME}-${BUILD_NUMBER}". All forward slashes ("/") in the JOB_NAME are replaced with dashes ("-"). Convenient to put into a resource file, a jar file, etc for easier identification.
+EXECUTOR_NUMBER
+    The unique number that identifies the current executor (among executors of the same machine) that’s carrying out this build. This is the number you see in the "build executor status", except that the number starts from 0, not 1.
+NODE_NAME
+    Name of the agent if the build is on an agent, or "master" if run on master
+NODE_LABELS
+    Whitespace-separated list of labels that the node is assigned.
+WORKSPACE
+    The absolute path of the directory assigned to the build as a workspace.
+JENKINS_HOME
+    The absolute path of the directory assigned on the master node for Jenkins to store data.
+JENKINS_URL
+    Full URL of Jenkins, like http://server:port/jenkins/ (note: only available if Jenkins URL set in system configuration)
+BUILD_URL
+    Full URL of this build, like http://server:port/jenkins/job/foo/15/ (Jenkins URL must be set)
+JOB_URL
+    Full URL of this job, like http://server:port/jenkins/job/foo/ (Jenkins URL must be set)
+GIT_COMMIT
+    The commit hash being checked out.
+GIT_PREVIOUS_COMMIT
+    The hash of the commit last built on this branch, if any.
+GIT_PREVIOUS_SUCCESSFUL_COMMIT
+    The hash of the commit last successfully built on this branch, if any.
+GIT_BRANCH
+    The remote branch name, if any.
+GIT_LOCAL_BRANCH
+    The local branch name being checked out, if applicable.
+GIT_CHECKOUT_DIR
+    The directory that the repository will be checked out to. This contains the value set in Checkout to a sub-directory, if used.
+GIT_URL
+    The remote URL. If there are multiple, will be GIT_URL_1, GIT_URL_2, etc.
+GIT_COMMITTER_NAME
+    The configured Git committer name, if any, that will be used for FUTURE commits from the current workspace. It is read from the Global Config user.name Value field of the Jenkins Configure System page.
+GIT_AUTHOR_NAME
+    The configured Git author name, if any, that will be used for FUTURE commits from the current workspace. It is read from the Global Config user.name Value field of the Jenkins Configure System page.
+GIT_COMMITTER_EMAIL
+    The configured Git committer email, if any, that will be used for FUTURE commits from the current workspace. It is read from the Global Config user.email Value field of the Jenkins Configure System page.
+GIT_AUTHOR_EMAIL
+    The configured Git author email, if any, that will be used for FUTURE commits from the current workspace. It is read from the Global Config user.email Value field of the Jenkins Configure System page.
+MERCURIAL_REVISION
+    Full ID of revision checked out.
+MERCURIAL_REVISION_SHORT
+    Abbreviated ID of revision checked out.
+MERCURIAL_REVISION_NUMBER
+    Number of revision checked out (not portable across clones).
+MERCURIAL_REVISION_BRANCH
+    Branch of revision checked out, if not checking out by branch head.
+MERCURIAL_REPOSITORY_URL
+    URL of repository.
+SVN_REVISION
+    Subversion revision number that's currently checked out to the workspace, such as "12345"
+SVN_URL
+    Subversion URL that's currently checked out to the workspace.

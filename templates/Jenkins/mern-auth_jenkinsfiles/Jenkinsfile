@@ -1,0 +1,27 @@
+
+Jenkinsfile (Declarative Pipeline)
+pipeline {
+    agent { docker { image 'node:10.16.0' } }
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building..'
+//Add NodeSource Repo to yum
+                sh curl -sL https://rpm.nodesource.com/setup_10.x | sudo bash -
+                sh yum update
+//Install node.js and npm
+                sh 
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
+    }
+}

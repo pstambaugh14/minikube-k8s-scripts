@@ -1,0 +1,23 @@
+input {
+  redis {
+    data_type => "list"
+    host => "192.168.0.70"
+    key => "logstash"
+    port => 6379
+    type => "redis"
+  }
+}
+filter {
+  metrics {
+    meter => "events"
+    add_tag => "metric"
+  }
+}
+output {
+    elasticsearch {
+    hosts => "localhost:9200"
+    manage_template => false
+    index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}" 
+    document_type => "%{[@metadata][type]}" 
+    }
+}

@@ -1,0 +1,14 @@
+#!/usr/bin/groovy
+
+#Template for the use of a prompt to pause a pipeline until user input received.
+
+#Place This at the top of the page somewhere before blocks
+def Input
+
+#Place this as a stage wherever desired
+stage('Load') {
+  steps {
+    script {
+    Input = load 'input.groovy'
+  }
+}

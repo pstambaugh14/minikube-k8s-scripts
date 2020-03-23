@@ -1,0 +1,21 @@
+input {
+  file {
+    type => "syslog"
+    path => ["/var/log/auth.log", "/var/log/syslog"]
+  }
+}
+
+filter {
+  mutate {
+    replace => ["host", "192.168.0.158"]
+  }
+}
+
+output {
+  redis {
+    host => "192.168.0.70"
+    port => 6379
+    data_type => "list"
+    key => "logstash"
+  }
+}

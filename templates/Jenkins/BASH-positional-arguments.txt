@@ -1,0 +1,29 @@
+I often come across $? $0 $1 $2 etc.... in shell scripting, what I know is that $? returns the exit status of the last command
+
+echo "this will return 0"
+echo $?
+
+but what do the others do? what are they called and is there more? perhaps like $3 $4 $5 ...
+
+
+
+
+
+
+
+These are positional arguments of the script.
+
+Executing
+
+./script.sh Hello World
+
+Will make
+
+$0 = ./script.sh
+$1 = Hello
+$2 = World
+
+Note
+
+If you execute ./script.sh, $0 will give output ./script.sh but if you execute it with bash script.sh it will give output script.sh.
+

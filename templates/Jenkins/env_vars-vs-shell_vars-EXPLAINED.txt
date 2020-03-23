@@ -1,0 +1,33 @@
+
+
+If the variables are truly environment variables (i.e., they've been exported with export) in the environment that invokes your script, then they would be available in your script. That they aren't suggests that you haven't exported them, or that you run the script from an environment where they simply don't exist even as shell variables.
+
+Example:
+
+$ cat script.sh
+#!/bin/sh
+
+echo "$hello"
+
+$ sh script.sh
+
+(one empty line of output since hello doesn't exist anywhere)
+
+$ hello="hi there"
+$ sh script.sh
+
+(still only an empty line as output as hello is only a shell variable, not an environment variable)
+
+$ export hello
+$ sh script.sh
+hi there
+
+Alternatively, to set the environment variable just for this script and not in the calling environment:
+
+$ hello="sorry, I'm busy" sh script.sh
+sorry, I'm busy
+
+$ env hello="this works too" sh script.sh
+this works too
+
+
