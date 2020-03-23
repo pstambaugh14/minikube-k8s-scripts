@@ -1,0 +1,10 @@
+NOTES ON ANYTHING NOTED FROM PYTHON3 AND DOCKER ALREADY
+
+1) Pip3 was required to install separately
+2) Pip3 needed to install docker and docker-py modules
+3) pip install oauthlib was also required for communications
+4) Working so far to grab a list of containers:
+   from docker import Client
+   cli = Client(base_url='unix://var/run/docker.sock')
+   print(cli.containers())
+5) 
