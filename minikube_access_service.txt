@@ -1,1 +1,2 @@
+#!/bin/bash
 minikube service -n default --url hello-minikube
