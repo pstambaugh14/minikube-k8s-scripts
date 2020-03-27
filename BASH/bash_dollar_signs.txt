@@ -1,0 +1,36 @@
+What is the difference between ${} and $()? I understand that () means running command in separate shell and placing $ means passing the value to variable. Can someone help me in understanding this? Please correct me if I am wrong.
+
+If we can use for ((i=0;i<10;i++)); do echo $i; done and it works fine then why can't I use it as while ((i=0;i<10;i++)); do echo $i; done? What is the difference in execution cycle for both?
+
+1)  $() means: "first evaluate this, and then evaluate the rest of the line".
+
+    Ex :
+
+    echo $(pwd)/myFile.txt
+
+    will be interpreted as
+
+    echo /my/path/myFile.txt
+
+    On the other hand ${} expands a variable.
+
+    Ex:
+
+    MY_VAR=toto
+    echo ${MY_VAR}/myFile.txt
+
+    will be interpreted as
+
+    echo toto/myFile.txt
+
+2)  Why can't I use it as bash$ while ((i=0;i<10;i++)); do echo $i; done
+
+    I'm afraid the answer is just that the bash syntax for while just isn't the same as the syntax for for.
+
+==================================================================================================================
+
+$((a + 200)) # Add 200 to $a
+
+==================================================================================================================
+
+

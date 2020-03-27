@@ -1,2 +1,3 @@
-docker images
-docker push pstambaugh14/ubuntutest
+#!/bin/bash
+docker images #List Docker Images Locally
+docker push <username>/<docker_image>:<tag>

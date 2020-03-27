@@ -1,0 +1,111 @@
+On Unix-like operating systems, exec is a builtin command of the Bash shell. It allows you to execute a command that completely replaces the current process. The current shell process is destroyed, and entirely replaced by the command you specify.
+
+Description
+
+exec is a critical function of any Unix-like operating system. Traditionally, the only way to create a new process in Unix is to fork it. The fork system call makes a copy of the forking program. The copy then uses exec to execute the child process in its memory space.
+Syntax
+
+exec [-c] [-l] [-a name] [command [arguments ...]] [redirection ...]
+
+Options and arguments
+
+The exec builtin command takes the following options and arguments:
+-a name 	Pass the string name as the zeroth argument to command. This option is available in bash versions 4.2 and above. When used, it will execute command, and set the special shell variable $0 to the value name, instead of command. For more information, see bash special parameter 0.
+-c 	Execute command in an empty environment.
+-l 	Insert a dash at the beginning of the zeroth argument. This can be used to start a login shell via exec. For more information about login shells, and bash's requirements about how they may be invoked, see shell invocation in bash.
+command 	The command to be executed. If you do not specify a command, exec can still provide redirection.
+arguments 	The arguments for the command you'd like to execute.
+redirection 	Any redirection for the command. If no command is specified, redirection applies to the current shell.
+
+Description
+
+exec is useful when you want to run a command, but you don't want a bash shell to be the parent process. When you exec a command, it replaces bash entirely — no new process is forked, no new PID is created, and all memory controlled by bash is destroyed and overwritten. This can be useful if, for instance, you want to give a user restricted access to a certain command. If the command exits because of an error, the user will not be returned to the privileged shell that executed it.
+
+exec may also be used without any command, to redirect all output of the current shell to a file. For more information about redirection, see redirection in the bash shell.
+
+Examples
+
+exec rbash
+
+Replace the current bash shell with rbash, the restricted bash login shell. Because the original bash shell is destroyed, the user will not be returned to a privileged bash shell when rbash exits.
+
+exec > output.txt
+
+Redirect all output to the file output.txt for the current shell process. Redirections are a special case, and exec does not destroy the current shell process, but bash will no longer print output to the screen, writing it to the file instead. (This technique is much more useful in scripts — if the above command is executed in a script, all script output will be written to output.txt.)
+
+exec 3< myinfile.txt
+
+Open myinfile.txt for reading ("<") on file descriptor 3.
+
+The above command is an example of explicitly opening a file descriptor. See opening file descriptors in bash for more information.
+
+After running the above command, you can read a line of myinfile.txt by running the read command with the -u option:
+
+read -u 3 mydata
+
+Here, "-u 3" tells read to get its data from file descriptor 3, which refers to myinfile.txt. The contents are read, one line at a time, into the variable mydata. This would be useful if used as part of a while loop, for example.
+
+Let's look at some more commands that open and close new file descriptors.
+
+exec 4> out.txt
+
+The above command opens out.txt for writing (">") on file descriptor 4.
+
+exec 3<&-
+
+Close ("&-") the open read descriptor ("<") number 3.
+
+exec 4>&-
+
+Close the open write descriptor (">") number 4.
+
+exec 5<> myfile.txt
+
+Open myfile.txt for reading and writing ("<>") as file descriptor 5.
+
+exec 5<>&-
+
+Close open read/write descriptor 5.
+
+exec 6>> myappendfile.txt
+
+Open myappendfile.txt for appending (">>") as file descriptor 6.
+
+exec {myfd}> out.txt
+
+Open myfile.txt for writing. A new file descriptor number, chosen automatically, is assigned to the variable myfd.
+
+echo Text >&myfd
+
+Echo the text "Text" and redirect the output to the file (in this case, myfile.txt) described by the write descriptor (">") whose number is obtained by dereferencing ("&") the variable named myfd.
+
+
+
+=======================================================================================================================================================================
+
+
+
+using ; will execute multiple commands (separately for each argument),
+
+example:  $ find /etc/rc* -exec echo Arg: {} \;
+Arg: /etc/rc.common
+Arg: /etc/rc.common~previous
+Arg: /etc/rc.local
+Arg: /etc/rc.netboot
+
+Using ; (semicolon) or + (plus sign) is mandatory in order to terminate the shell commands invoked by -exec/execdir.
+The character string "{}" will be replaced by the current file being processed. The *escaped*(\) semi-colon terminates the command argument for the -exec option.
+
+==================================================================================================================================================================
+
+using + will execute the least possible commands (as the arguments are combined together). It's very similar to how xargs command works, so it will use as many arguments per command as possible to avoid exceeding the maximum limit of arguments per line.
+
+Example:
+
+$ find /etc/rc* -exec echo Arg: {} \+
+Arg: /etc/rc.common /etc/rc.common~previous /etc/rc.local /etc/rc.netboot
+
+    The command line is built by appending each selected file name at the end.
+
+    Only one instance of {} is allowed within the command.
+

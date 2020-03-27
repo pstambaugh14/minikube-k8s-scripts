@@ -1,0 +1,86 @@
+Source command
+Jump to navigation
+Jump to search
+
+← Shell functions library • Home • Recursive function →
+
+    The source command can be used to load any functions file into the current shell script or a command prompt.
+    It read and execute commands from given FILENAME and return.
+    The pathnames in $PATH are used to find the directory containing FILENAME. If any ARGUMENTS are supplied, they become the positional parameters when FILENAME is executed.
+
+Syntax
+
+    The syntax is as follows:
+
+source filename [arguments]
+source functions.sh
+source /path/to/functions.sh arg1 arg2
+source functions.sh WWWROOT=/apache.jail PHPROOT=/fastcgi.php_jail
+
+Example
+
+Create a shell script called mylib.sh as follows:
+
+#!/bin/bash
+JAIL_ROOT=/www/httpd
+is_root(){
+   [ $(id -u) -eq 0 ] && return $TRUE || return $FALSE
+}
+
+Save and close the file. You can now call and use function is_root() from mylib.sh using the following syntax in your script called test.sh:
+
+#!/bin/bash
+# Load the  mylib.sh using source comamnd
+source mylib.sh
+
+echo "JAIL_ROOT is set to $JAIL_ROOT"
+
+# Invoke the is_root() and show message to user
+is_root && echo "You are logged in as root." || echo "You are not logged in as root."
+
+Save and close the file. Run it as follows:
+
+chmod +x test.sh
+./test.sh
+
+Sample outputs:
+
+JAIL_ROOT is set to /www/httpd
+You are not logged in as root.
+
+Our previous example can be updated using source command as follows:
+
+#!/bin/bash
+# load myfunctions.sh function file
+source /home/vivek/lsst2/myfunctions.sh
+
+# local variable
+quote="He WHO Sees me in all things, and ALL things in me, is never far from me, and I am never far from him."
+
+# invoke is_root()
+is_root && echo "You are a superuser." || echo "You are not a superuser."
+
+# call to_lower() with ${quote}
+to_lower ${quote}
+
+A Note About Exit Status
+
+This command returns the status of the last command executed in FILENAME; fails if FILENAME cannot be read. In this example, /etc/init.d/function exists and source using the following command:
+
+source /etc/init.d/function &>/dev/null
+echo $?
+
+Sample outputs:
+
+0
+
+The exit status 0 indicate that source commanded successfully read /etc/init.d/function file. In this example, /etc/init.d/foo does not exists and source using the following command:
+
+source /etc/init.d/foo &>/dev/null
+echo $?
+
+Sample outputs:
+
+1
+
+The exit status 1 indicate that source commanded failed to read /etc/init.d/foo file. 

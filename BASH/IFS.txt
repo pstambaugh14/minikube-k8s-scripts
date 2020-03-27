@@ -1,0 +1,134 @@
+$IFS
+Jump to navigation
+Jump to search
+
+    The IFS is a special shell variable.
+    You can change the value of IFS as per your requirments.
+    The Internal Field Separator (IFS) that is used for word splitting after expansion and to split lines into words with the read builtin command.
+    The default value is <space><tab><newline>. You can print it with the following command:
+
+cat -etv <<<"$IFS"
+
+    IFS variable is commonly used with read command, parameter expansions and command substitution.
+
+From the bash man page:
+
+    The shell treats each character of IFS as a delimiter, and splits the results of the other expansions into words on these characters. If IFS is unset, or its value is exactly <space><tab><newline>, the default, then sequences of <space>, <tab>, and <newline> at the beginning and end of the results of the previous expansions are ignored, and any sequence of IFS characters not at the beginning or end serves to delimit words. If IFS has a value other than the default, then sequences of the whitespace characters space and tab are ignored at the beginning and end of the word, as long as the whitespace character is in the value of IFS (an IFS whitespace character). Any character in IFS that is not IFS whitespace, along with any adjacent IFS whitespace characters, delimits a field. A sequence of IFS whitespace characters is also treated as a delimiter. If the value of IFS is null, no word splitting occurs.
+
+    The default value of IFS is a space, a tab, and a newline.
+
+Example
+
+Create a text file called /tmp/domains.txt as follows:
+
+cyberciti.biz|202.54.1.1|/home/httpd|ftpcbzuser
+nixcraft.com|202.54.1.2|/home/httpd|ftpnixuser
+
+Create a shell script called setupapachevhost.sh as follows:
+
+#!/bin/bash
+# setupapachevhost.sh - Apache webhosting automation demo script
+file=/tmp/domains.txt
+
+# set the Internal Field Separator to |
+IFS='|'
+while read -r domain ip webroot ftpusername
+do
+        printf "*** Adding %s to httpd.conf...\n" $domain
+        printf "Setting virtual host using %s ip...\n" $ip
+        printf "DocumentRoot is set to %s\n" $webroot
+        printf "Adding ftp access for %s using %s ftp account...\n\n" $domain $ftpusername
+	
+done < "$file"
+
+Save and close the file. Run it as follows:
+
+chmod +x setupapachevhost.sh
+./setupapachevhost.sh
+
+Sample outputs:
+
+*** Adding cyberciti.biz to httpd.conf...
+Setting virtual host using 202.54.1.1 ip...
+DocumentRoot is set to /home/httpd
+Adding ftp access for cyberciti.biz using ftpcbzuser ftp account...
+
+*** Adding nixcraft.com to httpd.conf...
+Setting virtual host using 202.54.1.2 ip...
+DocumentRoot is set to /home/httpd
+Adding ftp access for nixcraft.com using ftpnixuser ftp account...
+
+Where,
+
+    The read command reads input from $file file.
+    Each line of $file is broken into tokens with the help of $IFS.
+    The value of IFS (|) are used as token delimiters or separator for each line.
+    Each line is divided into four fields as domain, ip, webroot, and ftpusername.
+    The while loop is used to read entier $file.
+    The first token (Apache virtual hosting domain name) is saved to the actual variable called $domain.
+    The second token (Apache ip address) is saved to the actual variable called $ip.
+    The third token (Apache DocumentRoot) is saved to the actual variable called $webroot.
+    The fourth token (FTP server username) is saved to the actual variable called $ftpusername.
+
+IFS Effect On The Values of "$@" And "$*"
+
+    $@ and $* are special command line arguments shell variables.
+    The $@ holds list of all arguments passed to the script.
+    The $* holds list of all arguments passed to the script.
+    Create a shell script called ifsargs.sh:
+
+#!/bin/bash
+# ifsargs.sh - Cmd args - positional parameter demo
+echo "Command-Line Arguments Demo"
+echo "*** All args displayed using \$@ positional parameter ***"
+echo $@
+echo "*** All args displayed using \$* positional parameter ***"
+echo $*
+
+Save and close the file. Run it as follows:
+
+chmod +x ifsargs.sh
+./ifsargs.sh honda yamaha harley-davidson kawasaki
+
+Sample outputs:
+
+Command-Line Arguments Demo
+*** All args displayed using $@ positional parameter ***
+honda yamaha harley-davidson kawasaki
+*** All args displayed using $* positional parameter ***
+honda yamaha harley-davidson kawasaki
+
+    As you can see, the values of $@ and $* are same.
+    However, the values of "$@" and "$*" are different (note double quotes).
+    Edit ifsargs.sh as follows
+
+#!/bin/bash
+# ifsargs.sh - Cmd args - positional parameter demo
+
+#### Set the IFS to | ####
+IFS='|'
+
+echo "Command-Line Arguments Demo"
+
+echo "*** All args displayed using \$@ positional parameter ***"
+echo "$@"        #*** double quote added ***#
+
+echo "*** All args displayed using \$* positional parameter ***"
+echo "$*"        #*** double quote added ***#
+
+Save and close the file. Run it as follows:
+
+./ifsargs.sh honda yamaha harley-davidson kawasaki
+
+Sample outputs:
+
+Command-Line Arguments Demo
+*** All args displayed using $@ positional parameter ***
+honda yamaha harley-davidson kawasaki
+*** All args displayed using $* positional parameter ***
+honda|yamaha|harley-davidson|kawasaki
+
+    $@ expanded as "$1" "$2" "$3" ... "$n"
+    $* expanded as "$1y$2y$3y...$n", where y is the value of IFS variable i.e. "$*" is one long string and $IFS act as an separator or token delimiters.
+
+

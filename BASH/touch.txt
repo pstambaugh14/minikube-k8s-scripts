@@ -1,0 +1,28 @@
+Shell command: touch
+touch can be used to change a file's atime and mtime (but not to change its ctime).
+-t specify a timestamp
+-t can be used to specify a timestamp in [yy]yymmddhhmm[.ss] format.
+In the following example, -t is combined with -a to change the access and -m to change the modification time.
+stat with the %x and %y format is then used to verify if these dates were changed.
+
+touch -m -t 201011121314.15 touched
+touch -a -t 201211100908.07 touched
+
+stat --format="Last access time:       %x"  touched
+stat --format="Last modification time: %y"  touched
+
+Github respository shell-commands, path: /touch/t_specify-timestamp
+-d
+-d can be used to specify an arbitrary (possibly relative) date with which the file is created or touched.
+
+touch -d "10 days ago" ...
+
+sa https://github.com/ReneNyffenegger/shell-commands/tree/master/touch/d_10_days_ago
+Compare with -d flag of date.
+-r
+Use another file's timestamp.
+
+touch -r another-file file-to-touch ...
+
+========================================================================================================================
+Courtesy of: https://renenyffenegger.ch/notes/Linux/shell/commands/touch

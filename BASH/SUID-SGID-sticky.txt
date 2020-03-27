@@ -1,0 +1,115 @@
+There are two special permissions that can be set on executable files: Set User ID (setuid) and Set Group ID (sgid). These permissions allow the file being executed to be executed with the privileges of the owner or the group. Similarly, there are two special permissions for directories: the sticky bit and the setgid bit. Below are few of the most commonly asked Linux interview questions on the special permissions like SUID, SGID and sticky bit.
+
+What is Set User ID (setuid)?
+
+SUID is a special permission assigned to a file. These permissions allow the file being executed to be executed with the privileges of the owner. For example, if a file was owned by the root user and has the setuid bit set, no matter who executed the file it would always run with root user privileges.
+
+You must be the owner of the file or the root user to set the setuid bit. Run the following command to set the setuid bit:
+
+
+# chmod u+s file1
+
+
+View the permissions using the ls -l command:
+
+# ls -l file1
+-rwSrw-r-- 1 user1 user1 0 2017-10-29 21:41 file1
+
+Note the capital S. This means there are no execute permissions. Run the following command to add execute permissions to the file1 file, noting the lower case s.
+
+# chmod u+x file1
+
+# ls -l file1
+-rwsrw-r-- 1 user1 user1 0 2017-10-29 21:41 file1
+
+Note the lower case s. This means there are execute permissions.
+
+Alternatively, you can set the setuid bit using the numeric method by prepending a 4 to the mode. For example, to set the setuid bit, read, write, and execute permissions for the owner of the file1 file, run the following command:
+
+# chmod 4700 file1
+
+
+
+What is Set Group ID (setgid) for files?
+
+When the Set Group ID bit is set, the executable is run with the authority of the group. For example, if a file was owned by the users’ group, no matter who executed that file it would always run with the authority of the user’s group.
+How to set the SGID bit for files?
+
+Run the following command as to set the setgid bit on the file1 file:
+
+# chmod g+s
+
+Note: Both the setuid and setgid bits are set using the s symbol. The setgid is represented the same as the setuid bit, except in the group section of the permissions.
+
+Run the following command as root to set the setgid bit, and read, write, and execute permissions for the owner of the file1 file:
+
+# chmod 2700 file1
+
+The setgid is represented the same as the setuid bit, except in the group section of the permissions:
+
+ls -l file1
+-rwx--S--- 1 user1 user1 0 2017-10-30 21:40 file1
+
+Use the chmod u+s command to set the setuid bit. Use the chmod g+s command to set the setgid bit.
+What is Set Group ID permissions for directories
+
+When the setgid bit is set on a directory, all files created within said directory inherit the group ownership of that directory. For example, the folder1 folder is owned by the user user1, and the group group1:
+
+# ls -ld folder1
+drwxrwxr-x 2 user1 group1 4096 2017-10-30 22:25 folder1
+
+Files created in the folder1 folder will inherit the group1 group membership:
+
+# touch folder1/file1
+# ls -l folder1/file1
+-rw-rw-r-- 1 user1 group1 0 2017-10-30 22:29 folder1/file1
+
+How to set the SGID bit for directories?
+
+To set the setgid bit on a directory, use the chmod g+s command:
+
+# chmod g+s folder1
+
+View the permissions using the ls -ld command, noting the s in the group permissions:
+
+# ls -ld folder1
+drwxrwsr-x 2 user1 group1 4096 2017-10-30 22:32 folder1
+
+Alternatively, prepend a 2 to the directories mode:
+
+# chmod 2770 folder1
+
+What is sticky bit on a directory
+
+When the sticky bit is set on a directory, only the root user, the owner of the directory, and the owner of a file can remove files within said directory.
+How to set sticky bit
+
+An example of the sticky bit is the /tmp directory. Use the ls -ld /tmp command to view the permissions:
+
+# ls -ld /tmp
+drwxrwxrwt  24 root root  4096 2017-10-30 22:00 tmp
+
+The t at the end symbolizes that the sticky bit is set. A file created in the /tmp directory can only be removed by its owner, or the root user. For example, run the following command to set the sticky bit on the folder1 folder:
+
+# chmod a+t folder1
+
+Alternatively, prepend a 1 to the mode of a directory to set the sticky bit:
+
+# chmod 1777 folder1
+
+The permissions should be read, write, and execute for the owner, group, and everyone else, on directories that have the sticky bit set. This allows anyone to cd into the directory and create files.
+how to find files with SUID/SGID but set
+
+1. To find all the files with SUID but set, use the below command :
+
+# find / -perm +4000
+
+2. Tofind all the files with SGID bit set, use the below command :
+
+# find / -perm +2000
+
+You can also combine both the commands to find both SGID and SUID but set files.
+
+# find / -type f \\( -perm -4000 -o -perm -2000 \\) -exec ls -l {} \\;
+========================================================================================================================================================================
+Courtesy of: https://www.thegeekdiary.com/linux-interview-questions-special-permissions-suid-sgid-and-sticky-bit/

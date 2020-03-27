@@ -1,0 +1,140 @@
+The printf builtin is used to print formatted text on the screen. Please see how to use printf command. Format and print data as per given FORMAT. 
+Syntax
+
+The syntax is
+
+printf "FORMAT" variable
+printf [options] "FORMAT" variable
+
+Examples
+
+printf command format and display data on screen. However, printf does not provide a new line. You need to provide format string using % directives and escapes to format numeric and string arguments in a way that is mostly similar to the C printf() function. Use printf to generate formatted output. For example print $USER variable:
+
+printf "%s\n" $USER
+
+# define foo and print it
+foo="This is a test"
+printf "%s\n" $foo
+
+
+# define foo and print it but note $foo enclosed in ""
+foo="This is a test"
+printf "%s\n" "$foo"
+
+# define bar and print it
+bar=1000
+printf "%d\n" $bar
+
+How to assign the output to shell variable foo
+
+Pass the -v var option to the printf command to assign the output to shell variable VAR rather than display it on the standard output/screen. The syntax is:
+
+printf -v VAR "FORMAT" variable
+
+For example:
+
+bar="Failed"
+printf -v foo "%s" "$bar"
+printf "Value of foo is \"%s\"\n" $foo
+
+A note about printf version
+
+Please note that your shell may have its own version of printf, which usually supersedes the version described here. Find out if printf is an internal or external command using the type or command command:
+
+type -a printf
+
+Sample outputs:
+
+printf is a shell builtin
+printf is /usr/bin/printf
+
+Getting help about printf shell builtin
+
+help printf
+
+Getting help about /usr/bin/printf external command
+
+man 1 printf
+
+=======================================================================================================================================================================
+
+Generating Output With printf command
+
+printf command format and display data on screen. However, printf does not provide a new line. You need to provide format string using % directives and escapes to format numeric and string arguments in a way that is mostly similar to the C printf() function. Use printf to generate formatted output.
+printf Format Directives
+
+From the printf man page:
+
+  FORMAT controls the output as in C printf.  Interpreted sequences are:
+
+       \"     double quote
+
+       \NNN   character with octal value NNN (1 to 3 digits)
+
+       \\     backslash
+
+       \a     alert (BEL)
+
+       \b     backspace
+
+       \c     produce no further output
+
+       \f     form feed
+
+       \n     new line
+
+       \r     carriage return
+
+       \t     horizontal tab
+
+       \v     vertical tab
+
+       \xHH   byte with hexadecimal value HH (1 to 2 digits)
+
+       \uHHHH Unicode (ISO/IEC 10646) character with hex value HHHH (4 digits)
+
+       \UHHHHHHHH
+              Unicode character with hex value HHHHHHHH (8 digits)
+
+       %%     a single %
+
+       %b     ARGUMENT as a string with '\' escapes interpreted, except that octal escapes are of the form 
+              \0 or \0NNN and all C format specifications ending with one of diouxXfeEgGcs, 
+              with ARGUMENTs converted to proper type first. Variable widths are handled.
+
+Format control string syntax is as follows:
+
+printf "%w.pL\n" $varName
+
+Where,
+
+    w - Minimum field width.
+    p - Display number of digits after the decimal point (precision).
+    L - a conversion character. It can be:
+        s - String
+        d - Integer
+        e - Exponential
+        f - Floating point
+
+printf Command Examples
+
+Type the following at a shell prompt:
+
+vech="Car"
+printf "%s\n" $vech
+printf "%1s\n" $vech
+printf "%1.1s\n" $vech
+printf "%1.2s\n" $vech
+printf "%1.3s\n" $vech
+printf "%10.3s\n" $vech
+printf "%10.1s\n" $vech
+no=10
+printf "%d\n" $no
+big=5355765
+printf "%e\n" $big
+printf "%5.2e\n" $big
+sales=54245.22
+printf "%f\n" $sales
+printf "%.2f\n" $sales
+
+

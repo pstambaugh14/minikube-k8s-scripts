@@ -1,0 +1,77 @@
+The > operator redirects the output usually to a file but it can be to a device. You can also use >> to append.
+
+If you don't specify a number then the standard output stream is assumed but you can also redirect errors
+
+> file redirects stdout to file
+1> file redirects stdout to file
+2> file redirects stderr to file
+&> file redirects stdout and stderr to file
+
+/dev/null is the null device it takes any input you want and throws it away. It can be used to suppress any output.
+
+=======================================================================================================================
+
+
+Some more common use cases for redirection:
+
+command > /dev/null 2>&1 &
+
+Run command in the background, discard stdout and stderr
+
+command >> /path/to/log 2>&1 &
+
+Run command and append stdout and stderr to a log file.
+
+In Bash 4+, a shorter (but less readable) form is functional
+
+command &>> /path/to/log
+
+=======================================================================================================================
+
+255
+
+For background:
+
+    a number 1 = standard out (i.e. STDOUT)
+    a number 2 = standard error (i.e. STDERR)
+    if a number isn't explicitly given, then number 1 is assumed by the shell (bash)
+
+First let's tackle the function of these. For reference see the Advanced Bash-Scripting Guide(http://www.tldp.org/LDP/abs/html/io-redirection.html).
+Functions
+2>&-
+
+The general form of this one is M>&-, where "M" is a file descriptor number. This will close output for whichever file descriptor is referenced, i.e. "M".
+2>/dev/null
+
+The general form of this one is M>/dev/null, where "M" is a file descriptor number. This will redirect the file descriptor, "M", to /dev/null.
+2>&1
+
+The general form of this one is M>&N, where "M" & "N" are file descriptor numbers. It combines the output of file descriptors "M" and "N" into a single stream.
+|&
+
+This is just an abbreviation for 2>&1 |. It was added in Bash 4.
+&>/dev/null
+
+This is just an abbreviation for >/dev/null 2>&1. It redirects file descriptor 2 (STDERR) and descriptor 1 (STDOUT) to /dev/null.
+>/dev/null
+
+This is just an abbreviation for 1>/dev/null. It redirects file descriptor 1 (STDOUT) to /dev/null.
+Portability to non-bash, tcsh, mksh, etc.
+
+I've not dealt much with other shells outside of csh and tcsh. My experience with those 2 compared to bash's redirection operators, is that bash is superior in that regard. See the tcsh man page for more details.
+
+Of the commands you asked about none are directly supported by csh/tcsh. You'd have to use different syntaxes to construct similar functions.
+
+=======================================================================================================================================================================
+Courtesy of: https://unix.stackexchange.com/questions/70963/difference-between-2-2-dev-null-dev-null-and-dev-null-21
+
+=======================================================================================================================================================================
+
+python hello.sh > output.txt   # stdout to (file)
+python hello.sh >> output.txt  # stdout to (file), append
+python hello.sh 2> error.log   # stderr to (file)
+python hello.sh 2>&1           # stderr to stdout
+python hello.sh 2>/dev/null    # stderr to (null)
+python hello.sh &>/dev/null    # stdout and stderr to (null)
+
+
