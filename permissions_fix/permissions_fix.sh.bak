@@ -1,0 +1,247 @@
+#!/bin/bash
+
+#Fix Permissions of Files and Directories
+
+#Please remember to run this script as root/sudo.
+
+#Root User Check
+if [[ $(/usr/bin/id -u) -ne 0 ]]; then
+    echo "Not running as root, please run with sudo ./permissionsfix.sh or as 'root' user (sudo -i to login as root) "
+    exit
+fi
+
+#Print Current Working Directory
+echo "$PWD is the current working directory -- ONLY directories under this current directory will receive new permissions... "
+echo ""
+
+#Fix Permissions for Directories and Subdirectories (but NOT recursive chmod on ALL FILES under app root directory as it would affect ALL files and folders which we don't want)
+echo "Finding directories recursive to $PWD (only directories under $PWD will receive corrected permissions...) "
+find . -type d -name '*' -exec chmod 0755 {} \;
+echo ""
+
+source files.conf
+
+#echo "$EXECU"
+#echo ${#EXECU[@]}
+
+declare -i EXECUNUM
+EXECUNUM=$(echo ${#EXECU[@]})
+
+#echo $EXECUNUM
+
+for element in "${EXECU[@]}"; do
+    echo "Applying chmod 0775 to $element type files..."
+    find . -type f -name "*"$element"" -exec chmod 0775 {} \;
+done
+
+declare -i NOEXECUNUM
+NOEXECUNUM=$(echo ${#NOEXECU[@]})
+
+for element in "${NOEXECU[@]}"; do
+    echo "Applying chmod 0664 to $element type files..."
+    find . -type f -name "*"$element"" -exec chmod 0664 {} \;
+done
+
+#exit 0;
+
+#for element in "${ARRAY[@]}"; do
+#    echo "$element"
+#done
+
+#declare -i arraynum
+#arraynum=echo ${#EXECU[@]}
+
+#for ((i=0; i<${#ARRAY[@]}; i++)); do
+#   echo ${ARRAY[$i]}
+#done
+
+#echo "$NOEXECU"
+
+#readvar=$(read line )
+
+#echo "Generate array from string with elements separated by spaces:"
+#line="5 7"
+#read -ra array <<< "$line"
+#for ((i=0; i<${#array[@]}; i++)); do
+#   echo ${array[$i]}
+#done
+
+#eval $(read -ra array colr1 col2 <<< files.conf printf "chmod: %s .extension: %s\n" "$col1" "$col2")
+
+#exit 0;
+
+#file="files.conf"
+#IFS="="
+#array=(read -ra col1 col2 <<< files.conf )
+#read -ra array colr1 col2 <<< files.conf
+#printf "chmod: %s .extension: %s\n" "$col1" "$col2"
+#echo "done testing.. flop or fail?"
+#exit 0;
+
+#file="files.conf"
+#while IFS=: read -r f1 f2 | grep -v '^#'
+#do
+        # display fields using f1, f2.
+#        printf 'File Extension: %s, chmod: %s\n' "$f1" "$f2"
+#done <"$file"
+
+#echo $file
+
+#exit 0;
+
+# Generate array from lines in file
+#IFS=$'\n' lines_array($(<files.conf))
+
+#echo "Generate array from string with elements separated by spaces:"
+#line="5 7"
+#read -ra array <<< "$line"
+#for ((i=0; i<${#array[@]}; i++)); do
+#   echo ${array[$i]}
+#done
+
+#count=0
+#while read; do
+#	printf "%d %s\n" $REPLY
+#	count=$(expr $count + 1)
+#done <$1
+
+
+#grep -v '^#' files.conf | while read line; do
+
+# My input source is the contents of a variable called $list #
+#list=$(dpkg --list php\* | awk '/ii/{print $2}')
+#printf '%s\n' "$list"
+
+#!/bin/bash
+# BASH can iterate over $list variable using a "here string" #
+#while IFS= read -r pkg
+#do
+#    printf 'Installing php package %s...\n' "$pkg"
+#    /usr/bin/apt-get -qq install $pkg
+#done <<< "$list"
+#printf '*** Do not forget to run php5enmod and restart the server (httpd or php5-fpm) ***\n'
+
+
+
+#file="files.conf"
+#while IFS=: read -r f1 f2 | grep -v '^#'
+#do
+        # display fields using f1, f2.
+#        printf 'File Extension: %s, chmod: %s\n' "$f1" "$f2"
+#done <"$file"
+
+#echo $file
+
+#exit 0;
+
+
+
+#Fix Files with Universal Necessities
+#grep -v '^#' files.conf | while read line; do
+#cat files.conf | while read line; do
+#if [[ $line == ".sh" || ".ksh" || ".py" ]]; then #0775 - This is the line to configure for additional filetypes that would require executable permissions (0775).  Configure the below line by adding '|| ".extension_type"' after the last file extension type listed.
+# echo "Found Linux Shell Script File(s), assigning permissions chmod 0775 to allow execution... "
+# find . -type f -name "*"$line"" -exec chmod 0775 {} \;
+#elif [[ $line != ".sh" || ".ksh" || ".py" ]]; then
+# echo "Found non-executable Linux files, assigning permissions chmod 0664 to allow executions... "
+# find . -type f -name "*"$line"" -exec chmod 0664 {} \; #0664 - These are the rest of the filetypes in files.conf that do NOT require executable permissions and default to '0664' permissions.
+#else
+# echo "Doesn't seem to be any files under $PWD... "
+#fi
+#done
+
+
+#echo "Fixing common files associated with Git, GitHub, GitLab, Docker, Jenkins, Ansible and Javascript Applications... "
+#echo ""
+#echo "Finding and Fixing .txt files... "
+#find . -type f -name '*.txt' -exec chmod 0664 {} \;
+#echo "Finding and Fixing .sh files... "
+#find . -type f -name '*.sh' -exec chmod 0775 {} \;
+#echo "Finding and Fixing .md files... "
+#find . -type f -name '*.md' -exec chmod 0664 {} \;
+#echo "Finding and Fixing Dockerfile files... "
+#find . -type f -name '*Dockerfile*' -exec chmod 0664 {} \;
+#echo "Finding and Fixing Jenkinsfile files... "
+#find . -type f -name '*Jenkinsfile*' -exec chmod 0664 {} \;
+#echo "Finding and Fixing .yaml files... "
+#find . -type f -name '*.yaml' -exec chmod 0664 {} \;
+#echo "Finding and Fixing .yml files... "
+#find . -type f -name '*yml' -exec chmod 0664 {} \;
+#echo "Finding and Fixing .json files... "
+#find . -type f -name '*.json' -exec chmod 0664 {} \;
+#echo "Finding and Fixing 'ignore' files... "
+#find . -type f -name '*ignore' -exec chmod 0664 {} \;
+#echo "Finding and Fixing LICENSE files... "
+#find . -type f -name '*LICENSE*' -exec chmod 0664 {} \;
+#echo "Finding and Fixing .hbs files... "
+#find . -type f -name '*.hbs' -exec chmod 0775 {} \;
+#echo "Finding and Fixing .js files... "
+#find . -type f -name '*.js' -exec chmod 0664 {} \;
+#echo "Finding and Fixing '.lock files... "
+#find . -type f -name '*.lock' -exec chmod 0664 {} \;
+#echo "Finding and Fixing docker-compose files... "
+#find . -type f -name '*docker-compose*' -exec chmod 0664 {} \;
+#echo ""
+
+
+
+#Git Section
+
+#echo "Changing the permissions of the files within the directories... "
+#find . -type d -name '.git' > /tmp/ls.tmp
+#cat /tmp/ls.tmp
+#declare -i numvar
+#numvar=$(wc -l < /tmp/ls.tmp)
+
+echo "Validating if .git directories exist under $PWD..."
+lsvar=$(find -type d -name '.git')
+gitdir=($lsvar)
+
+#Check to see that .git directories exist under current working directory.
+if [[ -z "$gitdir" ]]; then
+echo "No .git Directory exists under $PWD directory, exiting..."; exit 0;
+else
+echo "At least one '.git' Directory found under $PWD!  Proceeding... "
+fi
+echo ""
+
+#Express at least one .git directory was found and run scripts
+echo "Found a total of ${#gitdir[@]} '.git' directories below $PWD as: ${gitdir[@]}... "
+echo ""
+
+#Find .git Directories and Set Appropriate Permissions
+echo "Changing the permissions of the following directories: "
+echo $lsvar | tr ' ' '\n'
+chmod 0755 $lsvar
+echo ""
+
+#Find Subdirectories under .git Directories
+echo "Changing the permissions of the files within the directories... "
+find . -type d -name '.git' > /tmp/ls.tmp
+cat /tmp/ls.tmp
+declare -i numvar
+numvar=$(wc -l < /tmp/ls.tmp)
+
+i=1
+for dir in $lsvar
+do
+echo "Changing the Permissions of Directories Under: $dir"
+find $dir -type d  -name '*' -exec chmod 0755 {} \;
+done
+
+for dir in $lsvar
+do
+echo "Changing Permissions of Files in $dir... "
+find $dir -type f -name '*' -exec chmod 0664 {} \;
+done
+
+#Finished!
+echo "Script finished executing.  Permissions changed to default values.  Enjoy! =D"
+
+#Cleaning Temporary Files
+rm -f /tmp/ls.tmp
+
+
+#VALDATE FILE TYPES!!
+#VALIDATE PERMISSIONS AFTER EXECUTING!
+#VALIDATE OWNERSHIP!
