@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#Stop on Error Reported
+set -e
+
 #Fix Permissions of Files and Directories
 
 #Please remember to run this script as root/sudo.
