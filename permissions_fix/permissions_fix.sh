@@ -50,6 +50,11 @@ else
   echo "ERROR: An error has occured..." 1>&2; exit 1
 fi
 
+#While loop to iterate until 'x' which is the total number of executable or non-executable filetypes.
+#Once iteration finalizes, the loop breaks.
+#This Loop is intended to validate that the conifigured filetypes exist in the host OS before...
+#...executing the permissions commands.  This helps expedite the script's runtime processes (time).
+
 i=0
 while [ $i -lt "$EXECUNUM" ];
 do
@@ -88,6 +93,11 @@ elif [[ ! -s /tmp/elements.tmp ]]; then
 else
  echo "ERROR: An error has occured..." 1>&2; exit 1
 fi
+
+#While loop to iterate until 'x' which is the total number of executable or non-executable filetypes.
+#Once iteration finalizes, the loop breaks.
+#This Loop is intended to validate that the conifigured filetypes exist in the host OS before...
+#...executing the permissions commands.  This helps expedite the script's runtime processes (time).
 
 i=0
 while [ $i -lt "$NOEXECUNUM" ];
