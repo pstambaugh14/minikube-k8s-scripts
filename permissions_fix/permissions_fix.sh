@@ -6,8 +6,7 @@
 
 #Root User Check
 if [[ $(/usr/bin/id -u) -ne 0 ]]; then
-    echo "Not running as root, please run with sudo ./permissionsfix.sh or as 'root' user (sudo -i to login as root) "
-    exit
+  echo "Not running as root, please run with sudo ./permissionsfix.sh or as 'root' user (sudo -i to login as root) " 1>&2; exit 2;
 fi
 
 #Print Current Working Directory
@@ -24,74 +23,91 @@ echo "Pulling Configuration Data... "
 source files.conf
 
 #Configurations Specific to Executable Files
-echo "Parsing Configuration Data... "
+#echo "Parsing Configuration Data... "
 declare -i EXECUNUM
 EXECUNUM=$(echo ${#EXECU[@]})
 
 #Execute chmod 0755 to each file extension in the array from sourced configuration file.
 #A chmod 0755 will make it so ONLY the owner of the executable file can execute it.
-
-#echo "Validating if executable files exist under $PWD..."
-
 echo "Checking to see if potentially executable file extensions exist under $PWD... "
-
-####NEXT STEP IF PREVIOUS FAILS###
-#for element in "${EXECU[@]}"; do
-#    find . -type f -name "*"$element"" -exec echo {} \; > /tmp/elements.tmp
-#done
-
-#exevar=$(find . -type f -name "${Fruits[@]}")
-#exefs=($exevar)
-#if [[ -z "$exefs" ]]; then
 if [[ -f /tmp/elements.tmp ]]; then
    rm -f /tmp/elements.tmp
 elif [[ ! -f /tmp/elements.tmp ]]; then
     touch /tmp/elements.tmp
 fi
 
+#Creates in I/O temporary array as parsing some of this otherwise is not fun... XD
 for element in "${EXECU[@]}"; do
  find . -type f -name "*"$element"" -exec echo {} \; >> /tmp/elements.tmp
 done
+
+#If there are executable file extensions via config that match what's been found, continue.
 if [[ -s /tmp/elements.tmp ]]; then
 echo "There exists file extensions able to be modifed as executables... "
+elif [[ ! -s /tmp/elements.tmp ]]; then
+  echo "There are no executable file extensions found under $PWD, moving on... "
 else
-# [[ ! -s /tmp/elements.tmp ]];
-  echo "ERROR: There are no executable file extensions found under $PWD, exiting... " 1>&2; exit 1
+  echo "ERROR: An error has occured..." 1>&2; exit 1
 fi
 
-for element in "${EXECU[@]}"; do
-  echo "Applying chmod 0755 to $element type files..."
-  find . -type f -name "*"$element"" -exec chmod 0755 {} \;
+i=0
+while [ $i -lt "$EXECUNUM" ];
+do
+  execvar=$(echo ${EXECU["$i"]})
+  findvar=$(find . -type f -name "*"$execvar"")
+  if [[ $(find . -type f -name "*"$execvar"") ]]; then
+  echo "Found $execvar filetypes that will be set to 0775 executable permissions... "
+  find . -type f -name "*"$execvar"" -exec chmod 0755 {} \;
+  fi
+  ((i=i+1))
 done
+
+
 rm -f /tmp/elements.tmp
 
-#Configurations Specific to Non-Executable Files
+
 declare -i NOEXECUNUM
 NOEXECUNUM=$(echo ${#NOEXECU[@]})
 
-#Execute chmod 0664 to each file extension in the array from sourced configuration file.
-#A chmod 0664 will make the file(s) read/write-able by the owner and group members.
-#But it will only be readable (not writable) by users outside of the group.
 if [[ -f /tmp/elements.tmp ]]; then
    rm -f /tmp/elements.tmp
 elif [[ ! -f /tmp/elements.tmp ]]; then
     touch /tmp/elements.tmp
 fi
 
+#Create the temp file array for available files
 for element in "${NOEXECU[@]}"; do
  find . -type f -name "*"$element"" -exec echo {} \; >> /tmp/elements.tmp
 done
+
+#If there are non-executable files available, continue.
 if [[ -s /tmp/elements.tmp ]]; then
 echo "There exists file extensions able to be modifed as non-executables... "
+elif [[ ! -s /tmp/elements.tmp ]]; then
+  echo "There are no non-executable file extensions found under $PWD, onto searching for .git directories... "
 else
-# [[ ! -s /tmp/elements.tmp ]];
-  echo "ERROR: There are no non-executable file extensions found under $PWD, exiting... " 1>&2; exit 1
+ echo "ERROR: An error has occured..." 1>&2; exit 1
 fi
 
-for element in "${NOEXECU[@]}"; do
-    echo "Applying chmod 0664 to $element type files..."
-    find . -type f -name "*"$element"" -exec chmod 0664 {} \;
+i=0
+while [ $i -lt "$NOEXECUNUM" ];
+do
+  noexecvar=$(echo ${NOEXECU["$i"]})
+  findvar2=$(find . -type f -name "*"$noexecvar"")
+  if [[ $(find . -type f -name "*"$noexecvar"") ]]; then
+  echo "Found $noexecvar filetypes that will be set to 0664 executable permissions... "
+  find . -type f -name "*"$noexecvar"" -exec chmod 0664 {} \;
+  fi
+  ((i=i+1))
 done
+
+#Apply the 0664 chmod to each file discovered categorized as a non-executable.
+#for element in "${NOEXECU[@]}"; do
+#    echo "Applying chmod 0664 to $element type files..."
+#    find . -type f -name "*"$element"" -exec chmod 0664 {} \;
+#done
+
+#Clean up temp files
 rm -f /tmp/elements.tmp
 
 
@@ -102,24 +118,28 @@ rm -f /tmp/elements.tmp
 #For some reason, the .git folders needed extra love even after running the initial script
 #without this section included.
 
-echo "Validating if .git directories exist under $PWD..."
+#Checks to see if .git directories exist under current working directory
+#where this script was executed.
+echo "Validating if '.git' directories exist under $PWD..."
 lsvar=$(find -type d -name '.git')
 gitdir=($lsvar)
 
-#Check to see that .git directories exist under current working directory.
+#If .git directories were found continue, otherwise exit.
 if [[ -z "$gitdir" ]]; then
 echo "No .git Directory exists under $PWD directory, exiting..."; exit 0;
 else
-echo "At least one '.git' Directory found under $PWD!  Proceeding... "
+echo "At least one '.git' directory found under $PWD!  Proceeding... "
 fi
 echo ""
 
+#Prevents false temp files from being loaded.
 if [[ -f /tmp/elements.tmp ]]; then
    rm -f /tmp/elements.tmp
 elif [[ ! -f /tmp/elements.tmp ]]; then
     touch /tmp/elements.tmp
 fi
 
+#Prepares for a clean print of stdout to shell for user experience. :)
 find -type d -name '.git' > /tmp/elements.tmp
 cleandir=`cat /tmp/elements.tmp`
 
@@ -130,26 +150,30 @@ echo ""
 rm -f /tmp/elements.tmp
 
 #Find .git Directories and Set Appropriate Permissions
-echo "Changing the permissions of the following directories: "
+#echo "Changing the permissions of the following directories to defaul to 0755: "
 echo $lsvar | tr ' ' '\n'
-chmod 0755 $lsvar
+#chmod 0755 $lsvar
 echo ""
 
 #Find Subdirectories under .git Directories
-echo "Changing the permissions of the files within the directories... "
+#echo "Changing the permissions of the files within the directories... "
 find . -type d -name '.git' > /tmp/ls.tmp
 cat /tmp/ls.tmp
 
-declare -i numvar
-numvar=$(wc -l < /tmp/ls.tmp)
+#Converts potential string variable value into an integer.
+#declare -i numvar
+#numvar=$(wc -l < /tmp/ls.tmp)
 
-i=1
+
+#Applying chmod 0755 to directories (global default).
+#i=1
 for dir in $lsvar
 do
 echo "Changing the Permissions of Directories Under: $dir"
 find $dir -type d  -name '*' -exec chmod 0755 {} \;
 done
 
+#Applying chmod 0775
 for dir in $lsvar
 do
 echo "Changing Permissions of Files in $dir... "

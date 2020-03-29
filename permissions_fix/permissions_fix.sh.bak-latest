@@ -6,8 +6,7 @@
 
 #Root User Check
 if [[ $(/usr/bin/id -u) -ne 0 ]]; then
-    echo "Not running as root, please run with sudo ./permissionsfix.sh or as 'root' user (sudo -i to login as root) "
-    exit
+  echo "Not running as root, please run with sudo ./permissionsfix.sh or as 'root' user (sudo -i to login as root) " 1>&2; exit 2;
 fi
 
 #Print Current Working Directory
@@ -24,7 +23,7 @@ echo "Pulling Configuration Data... "
 source files.conf
 
 #Configurations Specific to Executable Files
-echo "Parsing Configuration Data... "
+#echo "Parsing Configuration Data... "
 declare -i EXECUNUM
 EXECUNUM=$(echo ${#EXECU[@]})
 
@@ -45,20 +44,136 @@ done
 #If there are executable file extensions via config that match what's been found, continue.
 if [[ -s /tmp/elements.tmp ]]; then
 echo "There exists file extensions able to be modifed as executables... "
+elif [[ ! -s /tmp/elements.tmp ]]; then
+  echo "There are no executable file extensions found under $PWD, moving on... "
 else
-  echo "ERROR: There are no executable file extensions found under $PWD, exiting... " 1>&2; exit 1
+  echo "ERROR: An error has occured..." 1>&2; exit 1
 fi
 
-#Apply the 0755 chmod to each discovered file in a for loop.
-for element in "${EXECU[@]}"; do
-  echo "Applying chmod 0755 to $element type files..."
-  find . -type f -name "*"$element"" -exec chmod 0755 {} \;
+
+
+i=0
+while [ $i -lt "$EXECUNUM" ];
+do
+  execvar=$(echo ${EXECU["$i"]})
+  findvar=$(find . -type f -name "*"$execvar"")
+  if [[ $(find . -type f -name "*"$execvar"") ]]; then
+  echo "Found $execvar filetypes that will be set to 0775 executable permissions... "
+  find . -type f -name "*"$execvar"" -exec chmod 0755 {} \;
+  fi
+  ((i=i+1))
 done
+
+# define file array
+#EXECU="${EXECU[@]}"
+
+# find total number of files in an array
+#echo "Total files in array : "${#EXECU[@]}""
+#total="${#EXECU[@]}"
+
+# Use for loop iterate through an array
+# $f stores current value
+#for f in "${EXECU[@]}"; do
+#find . -type f -name "*"$f""
+#done
+
+#for element in "${EXECU[@]}"; do
+#  echo "Applying chmod 0755 to $element type files..."
+#  find . -type f -name "*"$element"" -exec chmod 0755 {} \;
+#done
+
+#total=${#EXECU[*]}
+#
+#for (( i=0; i<=$(( $total -1 )); i++ ))
+#do
+    #echo -n "${EXECU[$i]} "
+#    echo -n
+#done
+
+#echo
+
+
+#while [ $i -le "$EXECUNUM" ];
+#do
+#  for element in "${EXECU[@]}"; do
+#  find . -type f -name "*"$element"" && echo "$element has been found! Proceeding to chmod... "
+#  find . -type f -name "*"$element"" -exec chmod 0755 {} \;
+  #((i=i+1))
+#done
+#((i=i+1))
+#done
+
+#i=0
+#for i in "${EXECU[@]}"; do
+  #find . -type f -name "*"${Fruits["$i"]}""
+  #echo "${!EXECU[@]} has been found! Proceeding to chmod... "
+  #find . -type f -name "*"${EXECU[@]}"" -exec chmod 0755 "${EXECU[$i]}" {} \;
+  #((i=i+1))
+#done
+
+
+#i=0
+#p=0
+
+#for i in "${EXECU[@]}"; do
+#  find . -type f -name "*"${EXECU["$i"]}""
+#  echo ""${EXECU}" has been found! Proceeding to chmod... "
+#  find . -type f -name "*"${EXECU[@]}"" -exec chmod 0755 "${EXECU[$i]}" {} \;
+#  ((i=i+1))
+  #((p=p+p))
+#done
+
+
+
+#while true; do
+#  if [[ "$i" -le "$EXECUNUM" ]]; then
+#    for element in "${EXECU[@]}"; do
+#    find -type f -name "*"$element""
+#
+#  echo "1111"
+
+#done
+#done
+
+#for element in "${EXECU[@]}"; do
+#if [[ find -type f -name "*"$element""]]; then
+#    echo "$element exists... Applying chmod 0755 to $element type files... "
+#    find . -type f -name "*"$element"" -exec chmod 0755 {} \;
+#elif [[ ! find . -type f -name "*"$element""]]; then
+#    echo "$element does NOT exists... Moving onto the next file extension type... "
+#fi
+#done
+
+#for i in "${EXECU[@]}"; do
+
+#done
+
+#else
+    #echo "Something went wrong... " 1>&2; exit 1;
+
+#for ((i = 0 ; i -le "$EXECUNUM" ; i++)); do
+#sed -n "$i"p /tmp/elements.tmp
+#find -type f -name '*.${EXECU[0]}  '
+#done
+
+#exit 0;
+
+
+#VALIDATE THAT EACH FILE EXTENSION ACTUALLY EXISTS, THEN EXECUTE chmod
+#extvar=`cat /tmp/elements.tmp | grep -i `
+#for ext in
+
+
+#Apply the 0755 chmod to each discovered file in a for loop.
+#for element in "${EXECU[@]}"; do
+#  echo "Applying chmod 0755 to $element type files..."
+#  find . -type f -name "*"$element"" -exec chmod 0755 {} \;
+#done
 rm -f /tmp/elements.tmp
 
 #Configurations Specific to Non-Executable Files
-declare -i NOEXECUNUM
-NOEXECUNUM=$(echo ${#NOEXECU[@]})
+#declare -i NOEXECUNUM
+#NOEXECUNUM=$(echo ${#NOEXECU[@]})
 
 #Execute chmod 0664 to each file extension in the array from sourced configuration file.
 #A chmod 0664 will make the file(s) read/write-able by the owner and group members.
@@ -79,9 +194,10 @@ done
 #If there are non-executable files available, continue.
 if [[ -s /tmp/elements.tmp ]]; then
 echo "There exists file extensions able to be modifed as non-executables... "
+elif [[ ! -s /tmp/elements.tmp ]]; then
+  echo "There are no non-executable file extensions found under $PWD, onto searching for .git directories... "
 else
-# [[ ! -s /tmp/elements.tmp ]];
-  echo "ERROR: There are no non-executable file extensions found under $PWD, exiting... " 1>&2; exit 1
+ echo "ERROR: An error has occured..." 1>&2; exit 1
 fi
 
 #Apply the 0664 chmod to each file discovered categorized as a non-executable.
@@ -103,7 +219,7 @@ rm -f /tmp/elements.tmp
 
 #Checks to see if .git directories exist under current working directory
 #where this script was executed.
-echo "Validating if .git directories exist under $PWD..."
+echo "Validating if '.git' directories exist under $PWD..."
 lsvar=$(find -type d -name '.git')
 gitdir=($lsvar)
 
