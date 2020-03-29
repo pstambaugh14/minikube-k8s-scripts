@@ -1,0 +1,51 @@
+# A LIST OF ALL OF THE LIBS USED WITH GCLOUD API
+
+Google Cloud Client Libraries
+
+Google Cloud Client Libraries are our latest and recommended client libraries for calling Google Cloud APIs. They provide an optimized developer experience by using each supported language's natural conventions and styles. They also reduce the boilerplate code you have to write because they're designed to enable you to work with service metaphors in mind, rather than implementation details or service API concepts. You can find out more about client libraries for Cloud APIs in Client Libraries Explained.
+
+The following table provides links to get you started with Cloud Client Libraries in all our currently supported languages. The GitHub Repo page for each language lists the Cloud Platform services/APIs that are supported by that language's Cloud Client Library, and has installation instructions for a single client library that provides an interface to all those APIs.
+
+You can also download Cloud Client Libraries just for individual Cloud Platform services: you'll find detailed instructions to help you get started with these on the relevant product's Client Libraries page. For example, if you only want to use Google Cloud Pub/Sub, you'll find this information in Cloud Pub/Sub Client Libraries.
+
+If a Cloud Client Library for a specific language doesn't yet support a service you want to work with, use the Google API Client Library for that language.
+
+
+Go 	
+
+    https://github.com/GoogleCloudPlatform/google-cloud-go
+    https://godoc.org/cloud.google.com/go
+
+Java 	
+
+    https://github.com/googleapis/google-cloud-java
+    https://googleapis.github.io/google-cloud-java/google-cloud-clients/
+
+Node.js 	
+
+    https://github.com/GoogleCloudPlatform/google-cloud-node
+    https://googlecloudplatform.github.io/google-cloud-node/
+
+Python 	
+
+    https://github.com/GoogleCloudPlatform/google-cloud-python
+    http://googleapis.github.io/google-cloud-python/
+
+Ruby 	
+
+    https://github.com/GoogleCloudPlatform/google-cloud-ruby
+    https://googleapis.github.io/google-cloud-ruby/docs
+
+PHP 	
+
+    https://github.com/GoogleCloudPlatform/google-cloud-php
+    http://googleapis.github.io/google-cloud-php/
+
+C# 	
+
+    https://github.com/GoogleCloudPlatform/google-cloud-dotnet
+    http://googleapis.github.io/google-cloud-dotnet/
+
+
+
+https://cloud.google.com/apis/docs/client-libraries-explained
