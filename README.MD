@@ -1,11 +1,11 @@
 # PERSONAL GITHUB SCRIPTS - pstambaugh14@gmail.com/minikube-k8s-scripts
 
-INTRO
+# INTRO
 
 This repository is pretty much a backup for scripts that I have written for fun, for effective administration, ease of use, quasi-automation, and learning.  Some of these files are scripts that will work off the bat for anyone, some need to be manually configured, and others are just simple quick tools for an admin in-need!  :)
 
 
-What This Repository Can Bring You:
+# What This Repository Can Bring You:
 - Kubernetes/Minikube/Microk8s
 - GCP Scripts
 - Jenkinsfiles Templates
