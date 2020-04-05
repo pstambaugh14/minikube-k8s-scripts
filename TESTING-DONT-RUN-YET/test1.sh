@@ -15,13 +15,11 @@
 #    fi
 #done
 
-export found=$(find / -type f -name '*.sh')
-
 for containerId in $(docker ps -q)
 do
+    found=$(find / -type f -name '*.sh')
     docker exec -it "${containerId}" hostname
     docker exec -it "${containerId}" export found=$(find / -type f -name '*.sh')
     docker exec -it "${containerId}" if [[ -n ${found} ]]; then echo "Found ${found} in container ${containerId}" &&
     fi
 done
-
