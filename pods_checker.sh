@@ -2,6 +2,7 @@
 
 #****************************************************************************
 #PLEASE UNCOMMENT AND CONFIGURE THIS LINE: It is the deployment/pod YAML used:
+#<FULL_OR_RELATIVE_PATH/FILE.YAML>
 #yaml=
 #****************************************************************************
 
