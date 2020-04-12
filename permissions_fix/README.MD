@@ -1,4 +1,4 @@
-# THE ULTIMATE PERMISSIONS FIX FOR YOUR \*NIX SYSTEMS! - pstambaugh14/minikube-k8s-scripts/permissions_fix
+# THE ULTIMATE PERMISSIONS FIX FOR YOUR \*NIX SYSTEMS!
 
 ## Introduction
 
