@@ -37,7 +37,7 @@ MIT, APACHE, etc. Other Credits due.
 
 ## INSTALL INSTRUCTIONS
 INSTRUCTIONS
-For example to highlight js I write:
+For example to highlight BASH/Shell I write:
 
 ```sh
 #This is an example of how to utilize various programming languages embedded neatly into HTML pages as such:
