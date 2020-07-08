@@ -36,8 +36,9 @@ https://github.com/<username>/<repo>
 MIT, APACHE, etc. Other Credits due.
 
 ## INSTALL INSTRUCTIONS
-INSTRUCTIONS
-For example to highlight BASH/Shell I write:
+INSTRUCTIONS!
+
+For example to highlight BASH/Shell(or any given language configured appropriately):
 
 ```sh
 #This is an example of how to utilize various programming languages embedded neatly into HTML pages as such:
