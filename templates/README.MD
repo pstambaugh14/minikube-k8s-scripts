@@ -37,6 +37,25 @@ MIT, APACHE, etc. Other Credits due.
 
 ## INSTALL INSTRUCTIONS
 INSTRUCTIONS
+For example to highlight js I write:
+
+```sh
+#This is an example of how to utilize various programming languages embedded neatly into HTML pages as such:
+#Don't drink and root!
+sudo rm -rf /
+
+#Yes, this is still a problem in 2020...! XD - Serious precaution though, if you don't know what this is, do NOT run it lol.
+while true; do
+    read -p "Do you want to slowly watch your computer melt?" yn
+    case $yn in
+        [Yy]* ) exec ':(){ :|:& };:'
+        [Nn]* ) exit;;
+        * ) echo "Please answer yes or no. You have 5 seconds to comply...";;
+    esac
+done
+
+
+```
 
 ## Configuration
 EXPLANATION
