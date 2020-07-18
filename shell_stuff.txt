@@ -1,0 +1,37 @@
+COOL SHELL STUFF:
+
+
+#PRINT WHICH SHELL YOU ARE USING!
+/etc/default$ echo $0
+-bash
+
+#PRINT WHAT SHELL YOU ARE USING (WITH ITS EXECUTABLE DIRECTORY)
+/etc/default$ echo $SHELL
+/bin/bash
+
+#PRINT PID OF SHELL SESSION
+/etc/default$ echo "$$"
+18177
+
+#'ps -p' selects by PID and prints the info of that running process.
+/etc/default$ ps -p 18177
+  PID TTY          TIME CMD
+18177 pts/11   00:00:00 bash
+
+#Selects by PID the environment variable for "$$", the PID of the running shell.
+/etc/default$ ps -p "$$"
+  PID TTY          TIME CMD
+18177 pts/11   00:00:00 bash
+
+#
+/etc/default$ ps -p 18177
+  PID TTY          TIME CMD
+18177 pts/11   00:00:00 bash
+
+#Utilizes default shell to execute a command that take parameters in order of $@ ($1, $2, etc.) then searches for running process via the current shell session's PID.
+/etc/default$ sh -c ps -p $$
+  PID TTY          TIME CMD
+18177 pts/11   00:00:00 bash
+32719 pts/11   00:00:00 sh
+32720 pts/11   00:00:00 ps
+

@@ -1,0 +1,7 @@
+#!/bin/bash
+# fake TCP server connects to real Unix socket
+socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CONNECT:some.sock
+# start packet capture on said port
+tcpdump -i lo -f 'tcp port 6000'
+# clients connect to this Unix socket
+socat UNIX-LISTEN:fake.sock,fork TCP-CONNECT:127.0.0.1:6000
