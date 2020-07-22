@@ -30,9 +30,8 @@ source files.conf
 declare -i EXECUNUM
 EXECUNUM=$(echo ${#EXECU[@]})
 
-#Execute chmod 0755 to each file extension in the array from sourced configuration file.
-#A chmod 0755 will make it so ONLY the owner of the executable file can execute it.
-echo "Checking to see if potentially executable file extensions exist under $PWD... "
+#Check to see if 
+echo "Checking to to see if workspace is clean."
 if [[ -f /tmp/elements.tmp ]]; then
    rm -f /tmp/elements.tmp
 elif [[ ! -f /tmp/elements.tmp ]]; then
