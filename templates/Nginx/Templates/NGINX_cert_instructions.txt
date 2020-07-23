@@ -1,0 +1,42 @@
+ # Configuring SSL certificate for NGINX server
+
+      This version of NGINX application uses pre-generated certificate which is self-signed and is meant to be
+      only a temporary solution just to exemplify SSL/TLS configuration.
+
+      Generate a new self-signed certificate for your NGINX server using `openssl` command
+      or use a signed certifcate that you already own.
+
+      For example, if you would like to generate self-signed certifcate and private key
+      you could run the following command:
+      ```
+      openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout https1.key -out https1.cert
+      ```
+
+      Configure your own certificate using the following command:
+      ```
+      export CERT_FILE=https1.cert
+      export KEY_FILE=https1.key
+      export APP_INSTANCE_NAME=<name of your NGINX instance, e.g. nginx-1>
+      export NAMESPACE=<name of your Kurbernetes namespace, e.g. default>
+
+      # using --dry-run option because we update existing secret resource
+      # if we used kubectl create... for existing secret we would get an error
+      kubectl --namespace nginx create secret generic nginx-1-nginx-secret \
+        --from-file=$CERT_FILE --from-file=$KEY_FILE \
+        --dry-run -o yaml | kubectl apply -f -
+      ```
+      where .cert is a file containing SSL certificate and .key file contains private part of it.
+
+      Run these commands to restart all Pods without causing a downtime
+      ```
+      PODS=$(kubectl get pods --namespace nginx -l app.kubernetes.io/name=nginx-1 | awk 'FNR>1 {print $1}')
+
+      TIMEOUT=60
+
+      for i in ${PODS[@]}; do
+        echo "Deleting Pod: $i..."
+        kubectl delete pod $i --namespace nginx
+        echo "Sleeping for $TIMEOUT seconds..."
+        sleep $TIMEOUT
+      done
+      ```
