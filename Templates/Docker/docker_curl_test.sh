@@ -4,10 +4,11 @@
 
 #WORKING:
 curl -X GET "http(s)://<host_name>:<port>/v1.40/containers/json?all=false&size=false" -H  "accept: application/json" \
---cert ~/.docker/certs/cert.pem --key ~/.docker/certs/key.pem --cacert ~/.docker/certs/ca.pem
+--cert ~/.docker/certs/cert.pem --key ~/.docker/certs/key.pem --cacert ~/.docker/certs/ca.pem | python -m json.tool
 
 
 #Also WORKING (if no TLS, if API/Docker Daemon also still on UNIX Socket Listening)
 curl --unix-socket /var/run/docker.sock -H "Content-Type: application/json" \
   -d '"{"status": ["running"]}"' \
-  -X GET http:/v1.40/containers/json
+  -X GET http:/v1.40/containers/json \
+  | python -m json.tool
