@@ -11,7 +11,7 @@
 #WARNING!  This script WILL overwrite local repositories with latest remote code AND will then overwrite remote code with latest local code.
 
 #Exit when any command fails
-set -e
+#set -e
 
 #Root check
 if [ "$EUID" -ne 0 ]
@@ -74,6 +74,9 @@ do
 	echo "Checking to see if in correct directory..."
 	/usr/bin/pwd
 	echo ""
+	echo "Setting Credentials for GitHub..."
+	#git config user.email "${email}"
+	#git config user.name "${username}"
 	echo ""
 	echo "Pulling Origin URL within Local Directory..."
 	origin=$(git remote get-url origin)
@@ -98,12 +101,17 @@ do
 		echo ""
 		output2=$(git commit -m ""${commit}"" 2>&1 ) && exit_status1=$? || exit_status1=$?
 		output3=$(git push "${origin_with_pass}" master 2>&1 ) && exit_status2=$? || exit_status2=$?
-		if [[ $exit_status1 -ne 0 && $exit_status2 -ne 0 ]]; 
+		#if [[ $exit_status1 -ne 0 && $exit_status2 -ne 0 ]]; 
+		if [[ $exit_status2 -ne 0 ]]; 
 		then
 			echo "Your branch is up to date with 'origin/master, skipping..." 
 		else
+			echo "Executing git commit -m "${commit}" on "${origin}""
+			git commit --author=""${username}" <>" -m "${commit}"
+			echo ""	
+			echo ""		
 			echo "Executing 'git push origin master'"
-			git push ${origin_with_pass} master
+			git push "${origin_with_pass}" master
 			echo ""
 			echo ""
 			echo "Done! Onto the Next One..."
