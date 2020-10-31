@@ -5,3 +5,6 @@
 #reboot, logoff or whatever is necessary to interact with another element, application, setting, etc.).
 
 exec su -l $USER
+
+#OR: 
+#su - ${USER}
