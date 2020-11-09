@@ -1,0 +1,271 @@
+If your writing out unencrypted memory dump to that file then that's bad news. In that memory will probably be the keys and such nessicary to decrypt your encrypted volumes.
+
+I think (never done it myself) a better method is to encrypt your entire harddrive first, use LVM on top of that then use a logical volume for swap. That way the lvm stuff gets decrypted first and the suspend wakeup script in your initrd should be able to access swap.
+
+Another method would be to encrypt swap then make sure that initrd prompts you for your swap password before the wake up scripts run.
+
+Shouldn't be very difficult to do either. Check out 'man initramfs-tools' for details.
+
+
+
+
+Post Installation Encryption
+
+Normally, if you want to have encrypted data (a.k.a. an encrypted home folder), you specify this when you install or when you create a new user.
+
+But what happens if you decide only afterwards that you want to encrypt your data?
+
+Here is how to do so. This will encrypt a single user; if you wish to encrypt several users, you need to repeat the how-to for each one.
+
+Disclaimers & Warnings
+
+    These instructions have only been tested on Ubuntu 12.04. Do not assume they will work on other distributions.
+
+    Enabling encryption will disable hibernation but you can re-enable it afterwards by following the instructions given in Enable Hibernation with Encryption on this wiki.
+
+    You may want to print this page in case it doesn't work, so you can recover (Test New Login and Finalize, below). 
+
+Preparation
+
+    Check your wallpaper. Due to an existing bug, you will be unable to log in with encrypted folders if your wallpaper is in an encrypted area. So, either:
+
+        Change your wallpaper to one of the standard ones; or
+
+        Move your wallpaper to /usr/share/backgrounds and then set your wallpaper to it over there. 
+
+    This procedure is safe as it creates an encrypted copy of your folder, which means you need sufficient space on your drive to duplicate everything you have! If you don't, you need to back up your big data (e.g. movies); delete that data; run through this how-to; and restore your deleted data. (Having said that, I always recommend a full backup anyway in case of unexpected problems.)
+
+    This process uses the Terminal and the Recovery Mode. If you don't know how to use them, please find out before proceeding.
+
+    Install ecryptfs-utils. You may use Ubuntu Software Center or, if you prefer, your favourite package manager, or enter the command:
+
+    sudo apt-get install ecryptfs-utils
+
+Encrypt The Folder
+
+This tutorial will use the name zaphod for the user name. Please replace it with your user name.
+
+    Reboot into Recovery Mode.
+    Drop to root shell prompt.
+
+    Fix existing 12.04 bugs as follows:
+
+    mount --options remount,rw /
+    mount --all
+
+    Encrypt your folder. It prompts you for your password, runs, then gives you some warnings. I'll talk about the warnings in the next step.
+
+    ecryptfs-migrate-home --user zaphod
+
+    In the warnings, note the name of the temporary folder that is shown on your screen. It will look something like /home/zaphod.ChPzzxqD. The last 8 characters will be random; we will call these eight characters your random characters.
+    Ignore the rest of the warnings.
+
+    Reboot with the following command (it may take several seconds to get going; be patient).
+
+    reboot now
+
+Test New Login And Finalize
+
+    Log in normally. Check that everything seems to work properly. Did it work? 
+
+Yes, it worked:
+
+    Open a terminal and enter the following command. Replace zaphod and the random characters with yours (as noted in Encrypt The Folder above, step 5).
+
+        sudo rm -R /home/zaphod.ChPzzxqD
+
+    Restore any data, if you deleted some to make space (Preparation above, step 2).
+
+    Set up encrypted swap space, as follows. Note: This needs to be done only once; if you already have an encrypted user, you can skip this step.
+
+        sudo ecryptfs-setup-swap
+
+    Reboot. 
+
+No, it didn't work:
+
+    Repeat Encrypt The Folder above, steps 1-3.
+
+    Check that your random-name folder really is there with the following command; you should not see an error (ensure you replace zaphod and the random characters):
+
+        ls -l /home/zaphod.ChPzzxqD
+
+    Type the following commands. Ensure you replace zaphod and the random characters.
+
+        cd /home
+        rm -R  zaphod  .ecryptfs/zaphod
+        mv  zaphod.ChPzzxqD  zaphod
+
+    Reboot.
+
+        reboot now
+
+    Restore any data, if you deleted some to make space (Preparation above, step 2). 
+
+
+
+Enable Hibernate With Encrypted Swap
+
+Raison d'Etre
+
+    Many people have asked how to get hibernation to work with encrypted folders. The problem is that the swap partition is also encrypted, but with a random key, so on restarting there is no way to resume.
+
+    Now sharney, who uses Linux Mint, has found a way to solve this problem (on Mint, of course). The idea is to replace the random key with a password of your choice (you could use the same password as your login, but see Disclaimers and Warnings below, point 6).
+    Ubuntu is a little different from both Mint (despite Mint's origins in Ubuntu) and from sharney's situation, who uses full-disk encryption. 
+
+Disclaimers and Warnings
+
+    This tutorial uses the Terminal. If you do not know how to use it, please find out before proceeding.
+
+    This procedure was tested both on a virtual machine using Virtual Box and on a native installation. The Virtual Box had a strange problem — when resuming, the screen remained black, although the applications were still open and working. But the native installation worked correctly.
+
+    This procedure was tested on Ubuntu 12.04 (fully updated). Do not assume it will work on other versions or distributions.
+
+    It has also been tested to work to set up encrytped swap without hibernate on Linux Mint 20 (based on Ubuntu 20.04 LTS), so it is likely that these instructions will also work with other versions of Ubuntu.
+
+    Canonical does not support this function (yet), so use it at your own risk.
+    Please follow the instructions carefully, otherwise you may find your system unable to boot (but you can recover with the Recovery Option or a Live CD).
+
+    If more than one person uses your machine, every user will need to know the encryption password for the swap. 
+
+Explanation
+
+    Your existing encrypted swap partition uses a random key, generated each time you boot.
+
+    You will be replacing that random key method with a fixed key using a password of your choice. This password must be typed into the computer every time it is started or resumed from hibernation, whether by you or a different user.
+    It is possible to replace the password with a file, meaning that you wouldn't have to remember an extra password — but that file would be visible to anyone with physical access to your computer (e.g. via a Live USB).
+    If you forget your password, you will still be able to boot (after trying three times), but you won't have a swap partition. However, you can repeat this How-To to set it up again, so it's not a big deal. 
+
+Preparation
+
+    Your computer must already be set up for encryption. If not, follow instructions in Post Installation Encryption first.
+
+    Think of a password (or passphrase) for your swap partition. You can use the same as your log-in — but don't do that if other people have accounts on your computer! (See Disclaimers and Warnings point 6.)
+
+    Find out which is your encrypted swap partition.
+
+     swapon --summary
+
+    You should see output similar to:
+
+     Filename                        Type            Size    Used    Priority
+     /dev/mapper/cryptswap1          partition       1998844 0       -1
+
+    If you do not see cryptswap1, the partition is either unencrypted or is not encrypted to Ubuntu's standard.
+
+    Find the hardware device for your encrypted swap partition.
+
+     sudo cryptsetup status cryptswap1
+
+    Output should be similar to
+
+     /dev/mapper/cryptswap1 is active and is in use.
+       type:    PLAIN
+       cipher:  aes-cbc-essiv:sha256
+       keysize: 256 bits
+       device:  /dev/sda1
+       offset:  0 sectors
+       size:    3997696 sectors
+       mode:    read/write
+
+    Make a note of the device. The one in the example says /dev/sda1 — but yours could be something else, e.g. /dev/sdb3.
+
+    Back up. 
+
+How to Set Up Encrypted Swap with a Fixed Key
+
+    Turn off swap.
+
+     sudo swapoff /dev/mapper/cryptswap1
+
+    Undo the existing mapping.
+
+     sudo cryptsetup luksClose /dev/mapper/cryptswap1
+
+    Set up swap again, but this time with your chosen passphrase. The command will prompt you, twice, for your passphrase. Replace /dev/sdXN with the device from Preparation point 4. (The following command wraps on the browser screen, but it is a single command that you need to type.)
+
+     sudo cryptsetup luksFormat --cipher aes-xts-plain64 --verify-passphrase --key-size 256 /dev/sdXN
+
+    Output should be:
+
+     WARNING!
+     ========
+     This will overwrite data on /dev/sda1 irrevocably.
+     Are you sure? (Type uppercase yes):
+     Enter LUKS passphrase:
+     Verify passphrase:
+
+    Type YES and enter your passphrase twice as prompted.
+
+    Re-map the swap. Replace /dev/sdXN with the device from Preparation point 4.
+
+      sudo cryptsetup luksOpen /dev/sdXN cryptswap1
+
+    Set up the partition as swap.
+
+     sudo mkswap /dev/mapper/cryptswap1
+
+    Turn on the swap (so it starts working again).
+
+     sudo swapon --all
+
+    Check that it is working.
+
+     swapon --summary
+
+    You should see output similar to this (the numbers may differ).
+
+     Filename                        Type            Size    Used    Priority
+     /dev/mapper/cryptswap1          partition       1996796 0       -1
+
+    Using gksudo with your favorite editor (the default for Ubuntu is gedit), edit the file /etc/crypttab. Comment out the existing line by adding # to the front (or just delete the line), and add the following line. Replace /dev/sdXN with the device from Preparation point 4.
+
+     cryptswap1   /dev/sdXN   none   luks
+
+    Note: This step is only necessary for older versions of Ubuntu (13.04 or older, confirmed not necessary for 14.04).
+    Edit the file /usr/share/initramfs-tools/scripts/local-top/cryptroot. Search for the following line (should be line 288, but this could change over time):
+
+     message "cryptsetup: unknown error setting up device mapping"
+
+    Skip to the next blank line (should be 291, before FSTYPE=''), and insert the following line. Replace /dev/sdXN with the device from Preparation point 4.
+
+     /sbin/cryptsetup luksOpen /dev/sdXN cryptswap1
+
+    Note: This step is only necessary for older versions of Ubuntu (13.04 or older, confirmed not necessary for 14.04).
+    Edit the file /etc/acpi/hibernate.sh. At the first blank line, insert the following line.
+
+     DEVICE='/dev/mapper/cryptswap1'
+
+    Edit the file /etc/initramfs-tools/conf.d/resume. Replace the existing RESUME line with the following line.
+
+     RESUME=/dev/mapper/cryptswap1
+
+    If the file does not exist, create it with only that line.
+
+    (i) IMPORTANT: Whenever new kernels are installed, this step must be repeated
+
+    Register these changes.
+
+     sudo update-initramfs -u -k all
+
+    (i) IMPORTANT: Whenever new kernels are installed, this step must be repeated and then the machine MUST be rebooted 
+
+New Swap First Time Use
+
+    Reboot your machine.
+
+    You will receive a prompt for swap's encryption passphrase. Remember that your mouse does not work at this point. Type your passphrase and press Enter.
+    Correct cryptswap1 passphrase.png
+
+    If you mistype a passphrase three times, the system will boot anyway but without your swap enabled. Repeat the How-To if you have forgotten your passphrase.
+    Incorrect cryptswap1 passphrase.png
+
+    After correctly typing your passphrase:
+    Correct cryptswap1 passphrase.png 
+
+How to Enable Hibernate
+
+See the official documentation on how to test if hibernate works for your computer, and how to enable the hibernate option in the Unity power menu. 
+
+
+

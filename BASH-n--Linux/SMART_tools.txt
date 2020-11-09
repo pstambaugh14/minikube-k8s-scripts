@@ -1,0 +1,16 @@
+### THIS FILE SHOWS OPTIONS ABOUT BASIC S.M.A.R.T. OR I/O TOOLS THAT CAN BE USED TO CHECK SYSTEMS ###
+
+#INSTALL S.M.A.R.T. TOOLS
+sudo apt install smartmontools
+
+#PRINT OVERALL INFO ON A SPECIFIC DRIVE / VOLUME / PARTITION
+sudo smartctl -a /dev/sd<x>
+
+#RUN A 'SHORT' TEST
+sudo smartctl -t short /dev/sd<x>
+
+#PRINT THE RESULTS OF THE TEST (ABOVE)
+sudo smartctl -l selftest /dev/sd<x>
+
+
+

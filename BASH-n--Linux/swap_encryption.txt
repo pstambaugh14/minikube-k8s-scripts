@@ -1,0 +1,51 @@
+IF you want to keep your Encrypted swap partition do the following steps:
+
+First things first, we need to know where your swap file is located on your hard drive. dmesg can help here (or you could also check /etc/fstab)
+
+So in your case you can see the swap is on /dev/sda6. Next thing to do is ensure the system is fully up to date, turn swap off so we can work with the partition and install the necessary files. Ensure to replace /dev/sda6 with the partition you got from dmesg (or /etc/fstab) in the step above:
+
+sudo apt-get update
+sudo apt-get upgrade
+sudo swapoff /dev/sdb3
+sudo apt-get install lvm2 cryptsetup
+
+
+
+
+Next up, load the module and verify its running.
+
+$ sudo modprobe dm-crypt
+
+You should see something like below
+
+$ sudo lsmod | egrep 'aes|dm_crypt'
+dm_crypt               12928  0 
+aes_i586                8124  1 
+aes_generic            27484  1 aes_i586
+
+
+
+
+Now that we have the kernel module enabled 'dm_crypt',
+
+The swap partition can hold a lot of unencrypted confidential information and the fact that it persists after shutting down the computer can be a problem.
+
+Encrypting a swap partition however is slightly tricky if one wants to also support suspend-to-disk (also called hibernation). Here's a procedure that worked for me on both Debian Stretch and Ubuntu 18.04 (Bionic Beaver):
+
+    Install the cryptsetup package:
+
+    apt install cryptsetup
+
+    Add this line to /etc/crypttab:
+
+    sda2_crypt /dev/sda2 /dev/urandom cipher=aes-xts-plain64,size=256,swap,discard
+
+    Set the swap partition to be this in /etc/fstab:
+
+    /dev/mapper/sda2_crypt none swap sw 0 0
+
+You will of course want to replace /dev/sda2 with the partition that currently holds your unencrypted swap.
+
+This is loosely based on a similar procedure for Ubuntu 6.10, but I don't use suspend-to-disk and so I simplified the setup and use a random encryption key instead of a passphrase.
+RSS Atom
+
